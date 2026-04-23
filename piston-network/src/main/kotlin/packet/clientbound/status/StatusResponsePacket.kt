@@ -1,5 +1,6 @@
 package dev.sleepyswords.piston.network.packet.clientbound.status
 
+import dev.sleepyswords.nbt.TextComponent
 import dev.sleepyswords.piston.network.ClientboundPacket
 import dev.sleepyswords.piston.network.VarNum.writeMCString
 import kotlinx.io.Sink
@@ -41,6 +42,7 @@ private val json = Json {
 
 class StatusResponsePacket(private val statusResponse: StatusResponse) : ClientboundPacket {
     override fun encode(out: Sink) {
+        println(json.encodeToString(statusResponse))
         out.writeMCString(
             json.encodeToString(statusResponse),
         )

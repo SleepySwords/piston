@@ -1,9 +1,21 @@
 package dev.sleepyswords.piston.network
 
+import dev.sleepyswords.piston.network.handler.configuration.handleClientInformationPacket
+import dev.sleepyswords.piston.network.handler.configuration.handleFinishConfigurationPacket
+import dev.sleepyswords.piston.network.handler.status.handlePingPacket
 import dev.sleepyswords.piston.network.handler.status.handleStatusRequestPacket
-import dev.sleepyswords.piston.network.listener.handshake.handleHandshakePacket
+import dev.sleepyswords.piston.network.handler.handshake.handleHandshakePacket
+import dev.sleepyswords.piston.network.handler.login.handleLoginStartPacket
+import dev.sleepyswords.piston.network.handler.login.handleLoginSuccessPacket
+import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
+import dev.sleepyswords.piston.network.packet.common.configuration.PluginMessagePacket
+import dev.sleepyswords.piston.network.packet.serverbound.BundleItemSelectedPacket
+import dev.sleepyswords.piston.network.packet.serverbound.configuration.ClientInformationPacket
 import dev.sleepyswords.piston.network.packet.serverbound.handshake.HandshakePacket
-import dev.sleepyswords.piston.network.packet.serverbound.login.LoginPacket
+import dev.sleepyswords.piston.network.packet.serverbound.login.ConfirmTeleportationPacket
+import dev.sleepyswords.piston.network.packet.serverbound.login.LoginStartPacket
+import dev.sleepyswords.piston.network.packet.serverbound.login.LoginSuccessServerboundPacket
+import dev.sleepyswords.piston.network.packet.serverbound.status.PingPacket
 import dev.sleepyswords.piston.network.packet.serverbound.status.StatusRequestPacket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.utils.io.ByteWriteChannel
@@ -13,10 +25,15 @@ import kotlin.arrayOfNulls
 private val logger = KotlinLogging.logger {}
 
 enum class GameState(val id: Int) {
-    HANDSHAKE(0), STATUS(1), LOGIN(2), PLAY(3)
+    HANDSHAKE(0), STATUS(1), LOGIN(2), CONFIGURATION(3), PLAY(4)
 }
 
-data class GameSession(var gameState: GameState, val writeChannel: ByteWriteChannel)
+data class GameSession(var gameState: GameState, val writeChannel: ByteWriteChannel) {
+    suspend fun writeServerPacket(packet: ClientboundPacket) {
+        logger.info { "Writing server packet $packet" }
+        writeChannel.writeServerPacket(packet)
+    }
+}
 
 open class ServerboundPacketRegistry {
     private val registry = Array(GameState.entries.size) {
@@ -29,7 +46,11 @@ open class ServerboundPacketRegistry {
         decoder: ClientPacketDecoder<T>,
         handler: suspend (T, GameSession) -> Unit
     ) {
-        registry[gameState.id][opcode] = { source, session -> handler(decoder.decode(source), session) }
+        registry[gameState.id][opcode] = { source, session ->
+            val packet = decoder.decode(source)
+            logger.debug { "Received packet $packet" }
+            handler(packet, session)
+        }
     }
 
     suspend fun handlePacket(gameSession: GameSession, opcode: Int, source: Source) {
@@ -42,20 +63,30 @@ open class ServerboundPacketRegistry {
     }
 }
 
+fun handlePrintPacket(packet: ServerboundPacket, gameSession: GameSession) {
+    logger.debug { "Unhandled packet: ${packet.toString()}" }
+}
+
 object ServerboundPacketRegistryCommon : ServerboundPacketRegistry() {
     init {
         register(GameState.HANDSHAKE, 0x00, HandshakePacket.Decoder, ::handleHandshakePacket)
 
         register(GameState.STATUS, 0x00, StatusRequestPacket.Decoder, ::handleStatusRequestPacket)
+        register(GameState.STATUS, 0x01, PingPacket.Decoder, ::handlePingPacket)
+
+        register(GameState.LOGIN, 0x00, LoginStartPacket.Decoder, ::handleLoginStartPacket)
+        register(GameState.LOGIN, 0x03, LoginSuccessServerboundPacket.Decoder, ::handleLoginSuccessPacket)
+
+        register(GameState.CONFIGURATION, 0x02, PluginMessagePacket.Decoder, ::handlePrintPacket)
+        register(GameState.CONFIGURATION, 0x00, ClientInformationPacket.Decoder, ::handleClientInformationPacket)
+        register(GameState.CONFIGURATION, 0x03, FinishConfigurationPacket.Decoder, ::handleFinishConfigurationPacket)
+
+        register(GameState.PLAY, 0x00, ConfirmTeleportationPacket.Decoder, ::handlePrintPacket)
+        register(GameState.PLAY, 0x02, BundleItemSelectedPacket.Decoder, ::handlePrintPacket)
     }
 }
 
 object ServerboundPacketRegistryV771 : ServerboundPacketRegistry() {
     init {
-        register(GameState.HANDSHAKE, 0x00, LoginPacket.Decoder) { packet,_ -> println(packet.num) }
-
-        register(GameState.STATUS, 0x00, LoginPacket.Decoder) { packet,_ -> println(packet.num) }
-
-        register(GameState.LOGIN, 0x00, LoginPacket.Decoder) { packet,_ -> println(packet.num) }
     }
 }

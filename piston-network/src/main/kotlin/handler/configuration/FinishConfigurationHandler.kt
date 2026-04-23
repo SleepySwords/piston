@@ -1,0 +1,46 @@
+package dev.sleepyswords.piston.network.handler.configuration
+
+import dev.sleepyswords.piston.network.GameSession
+import dev.sleepyswords.piston.network.GameState
+import dev.sleepyswords.piston.network.packet.clientbound.play.GameMode
+import dev.sleepyswords.piston.network.packet.clientbound.play.LoginPacket
+import dev.sleepyswords.piston.network.packet.clientbound.play.Position
+import dev.sleepyswords.piston.network.packet.clientbound.play.Rotation
+import dev.sleepyswords.piston.network.packet.clientbound.play.SynchronizePlayerPosition
+import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
+import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
+
+suspend fun handleFinishConfigurationPacket(packet: FinishConfigurationPacket, session: GameSession) {
+    session.gameState = GameState.PLAY
+
+    session.writeServerPacket(LoginPacket(
+        entityID = 0,
+        isHardcore = false,
+        dimensionNames = listOf(),
+        maxPlayers = 10,
+        viewDistance = 10,
+        simulationDistance = 10,
+        reducedDebugInfo = false,
+        enableRespawnScreen = false,
+        doLimitedCrafting = false,
+        dimensionType = 0,
+        dimensionName = "ok",
+        hashedSeed = 0,
+        gameMode = GameMode.SURVIVAL,
+        previousGameMode = null,
+        isDebug = false,
+        isFlat = false,
+        deathLocation = null,
+        portalCooldown = 0,
+        seaLevel = 0,
+        enforceSecureChat = false,
+    ))
+
+    session.writeServerPacket(SynchronizePlayerPosition(
+        0,
+        Position(),
+        Velocity(),
+        Rotation(),
+        0,
+    ))
+}

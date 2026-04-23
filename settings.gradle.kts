@@ -21,6 +21,7 @@ plugins {
 // Learn more about structuring projects with Gradle - https://docs.gradle.org/8.7/userguide/multi_project_builds.html
 include(":app")
 include(":piston-core")
+include(":piston-nbt")
 include(":piston-network")
 
 rootProject.name = "piston"

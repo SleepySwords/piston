@@ -1,5 +1,9 @@
 package dev.sleepyswords.piston.network
 
+import dev.sleepyswords.piston.network.packet.clientbound.play.BlockVertex
+import dev.sleepyswords.piston.network.packet.clientbound.play.Position
+import dev.sleepyswords.piston.network.packet.clientbound.play.Rotation
+import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.readByte
@@ -7,7 +11,10 @@ import io.ktor.utils.io.writeByte
 import kotlinx.io.Sink
 import kotlinx.io.Source
 import kotlinx.io.readString
+import kotlinx.io.writeDouble
+import kotlinx.io.writeFloat
 import kotlinx.io.writeString
+import kotlin.uuid.Uuid
 
 object VarNum {
     const val SEGMENT_BITS: Int = 0x7F;
@@ -74,6 +81,43 @@ object VarNum {
         writeString(string)
     }
 
+    fun Sink.writeUuid(uuid: Uuid) {
+        uuid.toLongs {mostSignificantBits, leastSignificantBits ->
+            writeLong(mostSignificantBits)
+            writeLong(leastSignificantBits)
+        }
+    }
+
+    fun Sink.writeBoolean(value: Boolean) {
+        writeByte(if (value) 1 else 0)
+    }
+
+    fun Sink.writeBlockVertex(position: BlockVertex) {
+        var internal = position.x.toLong()
+        internal = internal shl 26
+        internal = internal or (position.z.toLong() and (1L shl 27) - 1)
+        internal = internal shl 26
+        internal = internal or (position.y.toLong() and (1L shl 13) - 1)
+
+        writeLong(internal)
+    }
+
+    fun Sink.writePosition(position: Position) {
+        writeDouble(position.x)
+        writeDouble(position.y)
+        writeDouble(position.z)
+    }
+
+    fun Sink.writeVelocity(velocity: Velocity) {
+        writeDouble(velocity.x)
+        writeDouble(velocity.y)
+        writeDouble(velocity.z)
+    }
+
+    fun Sink.writeRotation(rotation: Rotation) {
+        writeFloat(rotation.yaw)
+        writeFloat(rotation.pitch)
+    }
 
     inline fun readVarInt(readByte: () -> Byte): Int {
         var value = 0;
@@ -82,7 +126,7 @@ object VarNum {
 
         while (true) {
             currentByte = readByte();
-            value = value or (currentByte.toInt() and SEGMENT_BITS) shl position;
+            value = value or ((currentByte.toInt() and SEGMENT_BITS) shl position);
 
             if ((currentByte.toInt() and CONTINUE_BIT) == 0) break;
 
@@ -99,6 +143,13 @@ object VarNum {
     fun Source.readMCString(): String {
         val length = readVarInt()
         return readString(length.toLong())
+    }
+
+    fun Source.readUuid(): Uuid {
+        val mostSignificantBits = readLong()
+        val leastSignificantBits = readLong()
+
+        return Uuid.fromLongs(mostSignificantBits, leastSignificantBits)
     }
 
     suspend fun ByteReadChannel.readVarInt(): Int {

@@ -5,6 +5,7 @@ import io.ktor.utils.io.*
 import kotlinx.io.Buffer
 import kotlinx.io.Sink
 
+// FIXME: Maybe make this a separate deserialiser like kotlinx serialisation
 interface ClientboundPacket {
     fun encode(out: Sink)
 

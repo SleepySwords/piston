@@ -16,7 +16,7 @@ class NetworkManager {
             val selectorManager = SelectorManager(Dispatchers.IO)
             val server = aSocket(selectorManager).tcp().bind(hostname, port) { }
 
-            logger.debug { "Server listening on ${hostname}:${port}" }
+            logger.info { "Server listening on ${hostname}:${port}" }
 
             while (true) {
                 val socket = server.accept()

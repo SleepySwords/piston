@@ -6,20 +6,10 @@ plugins {
     alias(libs.plugins.kotlinPluginSerialization)
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-opt-in=kotlin.uuid.ExperimentalUuidApi")
-    }
-}
-
 dependencies {
     // Apply the kotlinx bundle of dependencies from the version catalog (`gradle/libs.versions.toml`).
     implementation(libs.bundles.kotlinxEcosystem)
     testImplementation(kotlin("test"))
 
-    implementation(project(":piston-nbt"))
-
     implementation("io.ktor:ktor-network:3.4.2")
-    implementation("ch.qos.logback:logback-classic:1.5.13")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
 }
