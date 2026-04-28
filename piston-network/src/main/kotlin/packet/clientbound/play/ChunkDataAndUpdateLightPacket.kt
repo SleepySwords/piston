@@ -17,7 +17,6 @@ fun encodeBlockData(
 ) {
     chunk.chunkSections.forEach { section ->
         out.writeShort(section.blockCount)
-        println(section.blockCount)
 
         out.writeUByte(section.blockPalette.bitsPerEntry)
         when (val strategy = section.blockPalette.paletteStrategy) {
@@ -43,6 +42,24 @@ fun encodeBlockData(
     }
 }
 
+object Light {
+    @OptIn(ExperimentalUnsignedTypes::class)
+    val lightBuffer = LongArray(256) { _ -> 0L.inv() }
+
+    val skyLight = BitSet(26)
+    val blockLight = BitSet(26)
+
+    val emptySkyLight = BitSet(26)
+    val emptyBlockLight = BitSet(26)
+
+    init {
+        for (i in 0 until 26) {
+            skyLight[i] = true
+            blockLight[i] = true
+        }
+    }
+}
+
 // Palette will be blocks which are then mapped to their immutable counterpart.
 class ChunkDataAndUpdateLightPacket(
     val chunkVertex: ChunkVertex,
@@ -61,36 +78,23 @@ class ChunkDataAndUpdateLightPacket(
 
         out.writeVarInt(0)
 
-        val skyLight = BitSet(26)
-        val blockLight = BitSet(26)
+        out.writeVarInt(Light.skyLight.backingArray.size)
+        Light.skyLight.backingArray.forEach(out::writeLong)
 
-        for (i in 0 until 26) {
-            skyLight[i] = true
-            blockLight[i] = true
-        }
+        out.writeVarInt(Light.blockLight.backingArray.size)
+        Light.blockLight.backingArray.forEach(out::writeLong)
 
-        out.writeVarInt(skyLight.backingArray.size)
-        skyLight.backingArray.forEach(out::writeLong)
+        out.writeVarInt(Light.emptySkyLight.backingArray.size)
+        Light.emptySkyLight.backingArray.forEach(out::writeLong)
 
-        out.writeVarInt(blockLight.backingArray.size)
-        blockLight.backingArray.forEach(out::writeLong)
-
-        val emptySkyLight = BitSet(26)
-        val emptyBlockLight = BitSet(26)
-
-        out.writeVarInt(emptySkyLight.backingArray.size)
-        emptySkyLight.backingArray.forEach(out::writeLong)
-
-        out.writeVarInt(emptyBlockLight.backingArray.size)
-        emptyBlockLight.backingArray.forEach(out::writeLong)
+        out.writeVarInt(Light.emptyBlockLight.backingArray.size)
+        Light.emptyBlockLight.backingArray.forEach(out::writeLong)
 
         for (i in 0 until 2) {
             out.writeVarInt(26)
             for (i in 0 until 26) {
                 out.writeVarInt(2048)
-                for (u in 0 until 2048) {
-                    out.writeUByte(0.toUByte().inv())
-                }
+                Light.lightBuffer.forEach(out::writeLong)
             }
         }
     }

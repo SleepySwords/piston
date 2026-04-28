@@ -25,7 +25,7 @@ interface ChunkGenerator {
 class TestChunkGenerator : ChunkGenerator {
     override fun generateBlock(blockVertex: BlockVertex): Block {
         if (blockVertex.x == 10 && blockVertex.z == 10) {
-            return Air
+            return Stone
         }
         return if (blockVertex.y <= 10 && blockVertex.x != 10 && blockVertex.z != 10) {
             Stone

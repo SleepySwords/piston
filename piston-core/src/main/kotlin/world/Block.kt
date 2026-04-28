@@ -17,3 +17,9 @@ object Stone : Block {
 
     override fun isAirBlock(): Boolean = false
 }
+
+object Grass : Block {
+    override fun getPhysicalBlock(): Int = 2
+
+    override fun isAirBlock(): Boolean = false
+}

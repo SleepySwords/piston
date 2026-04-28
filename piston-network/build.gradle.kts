@@ -21,6 +21,6 @@ dependencies {
     implementation(project(":piston-core"))
 
     implementation("io.ktor:ktor-network:3.4.2")
-    implementation("ch.qos.logback:logback-classic:1.5.13")
+    implementation("ch.qos.logback:logback-classic:1.5.32")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
 }

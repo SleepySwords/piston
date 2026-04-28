@@ -70,7 +70,7 @@ open class ServerboundPacketRegistry {
     ) {
         val handler = registry[gameSession.gameState.id][opcode]
         if (handler == null) {
-            logger.error { "Received unknown opcode $opcode from ${gameSession.gameState}" }
+//            logger.error { "Received unknown opcode $opcode from ${gameSession.gameState}" }
             return
         }
         handler(source, gameSession)

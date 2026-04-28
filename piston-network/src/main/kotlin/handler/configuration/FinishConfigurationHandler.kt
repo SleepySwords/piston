@@ -15,6 +15,10 @@ import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigu
 import dev.sleepyswords.utils.utility.ChunkVertex
 import dev.sleepyswords.utils.world.TestChunkGenerator
 
+object PreGeneratedChunks {
+    val chunk = List(9) {i -> TestChunkGenerator().generateChunk(ChunkVertex(i%3 - 1, i / 3 - 1))}
+}
+
 suspend fun handleFinishConfigurationPacket(
     packet: FinishConfigurationPacket,
     session: GameSession,
@@ -68,7 +72,7 @@ suspend fun handleFinishConfigurationPacket(
             session.writeServerPacket(
                 ChunkDataAndUpdateLightPacket(
                     chunkVertex = ChunkVertex(x, z),
-                    chunk = TestChunkGenerator().generateChunk(ChunkVertex(x, z)),
+                    chunk = PreGeneratedChunks.chunk[x + 1 + (z + 1) * 3]
                 ),
             )
         }
