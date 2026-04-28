@@ -13,8 +13,12 @@ data class HandshakePacket(
     val serverPort: UShort,
     val intent: Intent,
 ) : ServerboundPacket {
-    enum class Intent(val id: Int) {
-        STATUS(1), LOGIN(2), TRANSFER(3)
+    enum class Intent(
+        val id: Int,
+    ) {
+        STATUS(1),
+        LOGIN(2),
+        TRANSFER(3),
     }
 
     companion object {

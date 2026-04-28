@@ -10,7 +10,12 @@ class ChunkSection(
 ) {
     constructor() : this(Palette(Air), 0)
 
-    operator fun set(x: Int, y: Int, z: Int, block: Block) {
+    operator fun set(
+        x: Int,
+        y: Int,
+        z: Int,
+        block: Block,
+    ) {
         val old = get(x, y, z)
         if (old.isAirBlock() != block.isAirBlock()) {
             blockCount = (blockCount + if (block.isAirBlock()) -1 else 1).toShort()
@@ -18,7 +23,11 @@ class ChunkSection(
         blockPalette[Chunk.getIndex(x, y, z)] = block
     }
 
-    operator fun get(x: Int, y: Int, z: Int): Block = blockPalette[Chunk.getIndex(x, y, z)]
+    operator fun get(
+        x: Int,
+        y: Int,
+        z: Int,
+    ): Block = blockPalette[Chunk.getIndex(x, y, z)]
 }
 
 class Chunk {
@@ -30,11 +39,19 @@ class Chunk {
         chunkSections = (0 until noSections).map { ChunkSection() }.toList()
     }
 
-    operator fun set(blockVertex: BlockVertex, block: Block) {
+    operator fun set(
+        blockVertex: BlockVertex,
+        block: Block,
+    ) {
         set(blockVertex.x, blockVertex.y, blockVertex.z, block)
     }
 
-    operator fun set(x: Int, y: Short, z: Int, block: Block) {
+    operator fun set(
+        x: Int,
+        y: Short,
+        z: Int,
+        block: Block,
+    ) {
         val chunkIndex = (y - MIN_HEIGHT) / CHUNK_SECTION_HEIGHT
         val chunkOffset = (y - MIN_HEIGHT) % CHUNK_SECTION_HEIGHT
         chunkSections[chunkIndex][x, chunkOffset, z] = block
@@ -42,7 +59,11 @@ class Chunk {
 
     operator fun get(blockVertex: BlockVertex): Block = get(blockVertex.x, blockVertex.y, blockVertex.z)
 
-    operator fun get(x: Int, y: Short, z: Int): Block {
+    operator fun get(
+        x: Int,
+        y: Short,
+        z: Int,
+    ): Block {
         val chunkIndex = (y - MIN_HEIGHT) / CHUNK_SECTION_HEIGHT
         val chunkOffset = (y - MIN_HEIGHT) % CHUNK_SECTION_HEIGHT
         return chunkSections[chunkIndex][x, chunkOffset, z]
@@ -52,12 +73,15 @@ class Chunk {
         const val CHUNK_WIDTH = 16
         const val CHUNK_LENGTH = 16
         const val CHUNK_SECTION_HEIGHT = 16
+
         // These should not be set in stone and be part of the dimension
         const val CHUNK_HEIGHT = 384
         const val MIN_HEIGHT = -64
 
-        fun getIndex(x: Int, y: Int, z: Int): Int {
-            return x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_LENGTH
-        }
+        fun getIndex(
+            x: Int,
+            y: Int,
+            z: Int,
+        ): Int = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_LENGTH
     }
 }

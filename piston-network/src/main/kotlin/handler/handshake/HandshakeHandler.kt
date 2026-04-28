@@ -7,13 +7,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 
 val logger = KotlinLogging.logger {}
 
-fun handleHandshakePacket(packet: HandshakePacket, session: GameSession) {
+fun handleHandshakePacket(
+    packet: HandshakePacket,
+    session: GameSession,
+) {
     logger.debug { "Attempted handshake by player with protocol version ${packet.protocolVersion}, intent ${packet.intent}" }
     when (packet.intent) {
         HandshakePacket.Intent.STATUS -> {
             session.gameState = GameState.STATUS
         }
-        HandshakePacket.Intent.LOGIN, HandshakePacket.Intent.TRANSFER ->  {
+
+        HandshakePacket.Intent.LOGIN, HandshakePacket.Intent.TRANSFER -> {
             session.gameState = GameState.LOGIN
         }
     }

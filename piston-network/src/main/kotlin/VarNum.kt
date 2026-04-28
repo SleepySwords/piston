@@ -17,24 +17,27 @@ import kotlinx.io.writeString
 import kotlin.uuid.Uuid
 
 object VarNum {
-    const val SEGMENT_BITS: Int = 0x7F;
-    const val CONTINUE_BIT: Int = 0x80;
+    const val SEGMENT_BITS: Int = 0x7F
+    const val CONTINUE_BIT: Int = 0x80
 
-    inline fun writeVarInt(value: Int, consumer: (Byte) -> Unit) {
+    inline fun writeVarInt(
+        value: Int,
+        consumer: (Byte) -> Unit,
+    ) {
         var v = value
         while (true) {
             if ((v and SEGMENT_BITS.inv()) == 0) {
-                consumer(v.toByte());
-                return;
+                consumer(v.toByte())
+                return
             }
 
-            consumer(((v and SEGMENT_BITS) or CONTINUE_BIT).toByte());
+            consumer(((v and SEGMENT_BITS) or CONTINUE_BIT).toByte())
 
             // Note: >>> means that the leftmost bits are filled with zeroes regardless of the sign,
             // rather than being filled with copies of the sign bit to preserve the sign.
             // In languages that don't have a ">>>" operator, This behavior can often be selected by
             // performing the shift on an unsigned type.
-            v = v ushr 7;
+            v = v ushr 7
         }
     }
 
@@ -48,21 +51,24 @@ object VarNum {
         }
     }
 
-    inline fun writeVarLong(value: Long, consumer: (Byte) -> Unit) {
+    inline fun writeVarLong(
+        value: Long,
+        consumer: (Byte) -> Unit,
+    ) {
         var v = value
         while (true) {
             if ((v and SEGMENT_BITS.toLong().inv()) == 0L) {
-                consumer(v.toByte());
-                return;
+                consumer(v.toByte())
+                return
             }
 
-            consumer(((v and SEGMENT_BITS.toLong()) or CONTINUE_BIT.toLong()).toByte());
+            consumer(((v and SEGMENT_BITS.toLong()) or CONTINUE_BIT.toLong()).toByte())
 
             // Note: >>> means that the leftmost bits are filled with zeroes regardless of the sign,
             // rather than being filled with copies of the sign bit to preserve the sign.
             // In languages that don't have a ">>>" operator, This behavior can often be selected by
             // performing the shift on an unsigned type.
-            v = v ushr 7;
+            v = v ushr 7
         }
     }
 
@@ -82,7 +88,7 @@ object VarNum {
     }
 
     fun Sink.writeUuid(uuid: Uuid) {
-        uuid.toLongs {mostSignificantBits, leastSignificantBits ->
+        uuid.toLongs { mostSignificantBits, leastSignificantBits ->
             writeLong(mostSignificantBits)
             writeLong(leastSignificantBits)
         }
@@ -120,22 +126,22 @@ object VarNum {
     }
 
     inline fun readVarInt(readByte: () -> Byte): Int {
-        var value = 0;
-        var position = 0;
-        var currentByte: Byte;
+        var value = 0
+        var position = 0
+        var currentByte: Byte
 
         while (true) {
-            currentByte = readByte();
-            value = value or ((currentByte.toInt() and SEGMENT_BITS) shl position);
+            currentByte = readByte()
+            value = value or ((currentByte.toInt() and SEGMENT_BITS) shl position)
 
-            if ((currentByte.toInt() and CONTINUE_BIT) == 0) break;
+            if ((currentByte.toInt() and CONTINUE_BIT) == 0) break
 
-            position += 7;
+            position += 7
 
-            if (position >= 32) throw RuntimeException("VarInt is too big");
+            if (position >= 32) throw RuntimeException("VarInt is too big")
         }
 
-        return value;
+        return value
     }
 
     fun Source.readVarInt(): Int = readVarInt(::readByte)
@@ -152,7 +158,5 @@ object VarNum {
         return Uuid.fromLongs(mostSignificantBits, leastSignificantBits)
     }
 
-    suspend fun ByteReadChannel.readVarInt(): Int {
-        return readVarInt { readByte() }
-    }
+    suspend fun ByteReadChannel.readVarInt(): Int = readVarInt { readByte() }
 }

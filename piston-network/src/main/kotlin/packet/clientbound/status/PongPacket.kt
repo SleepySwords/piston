@@ -7,7 +7,9 @@ import kotlinx.io.Sink
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class PongPacket(private val timestamp: Long) : ClientboundPacket {
+class PongPacket(
+    private val timestamp: Long,
+) : ClientboundPacket {
     override fun encode(out: Sink) {
         out.writeLong(timestamp)
     }

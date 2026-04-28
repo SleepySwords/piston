@@ -2,11 +2,16 @@ package dev.sleepyswords.utils.utility
 
 import dev.sleepyswords.utils.Utility
 
-class BitSet(private val nBits: Int = 0) {
+class BitSet(
+    private val nBits: Int = 0,
+) {
     val backingArray: LongArray = LongArray(Utility.ceilDiv(nBits, Long.SIZE_BITS))
 
     // TODO: resize automatically
-    operator fun set(index: Int, value: Boolean) {
+    operator fun set(
+        index: Int,
+        value: Boolean,
+    ) {
         val longIndex = index / 64
         val bitIndex = index % 64
         var l = backingArray[longIndex]

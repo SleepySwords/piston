@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 @DslMarker
 annotation class TextComponentDsl
 
-
-fun text(content: String, block: TextComponent.() -> Unit = {}): TextComponent {
-    return TextComponent(content).apply(block)
-}
+fun text(
+    content: String,
+    block: TextComponent.() -> Unit = {},
+): TextComponent = TextComponent(content).apply(block)
 
 fun test() {
     text("ok") {
@@ -27,5 +27,4 @@ data class TextComponent(
     var obfuscated: Boolean? = null,
     var strikethrough: Boolean? = null,
     var color: Color? = null,
-) {
-}
+)

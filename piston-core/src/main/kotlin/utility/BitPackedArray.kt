@@ -7,7 +7,10 @@ sealed interface BitPackedArray {
 
     operator fun get(index: Int): Int
 
-    fun setEntry(index: Int, value: Int): Int
+    fun setEntry(
+        index: Int,
+        value: Int,
+    ): Int
 
     fun increaseCapacity(bitsPerEntry: UByte)
 }
@@ -15,7 +18,7 @@ sealed interface BitPackedArray {
 class AlignedBitPackedArray(
     override var bitsPerEntry: UByte,
     override val size: Int,
-    override var packed: LongArray = LongArray(requiredLongCount(size, bitsPerEntry.toInt()))
+    override var packed: LongArray = LongArray(requiredLongCount(size, bitsPerEntry.toInt())),
 ) : BitPackedArray {
     private val maxEntryMask: Long
         get() = (1L shl bitsPerEntry.toInt()) - 1L
@@ -28,7 +31,10 @@ class AlignedBitPackedArray(
         return ((packed[longIndex] ushr bitIndex) and maxEntryMask).toInt()
     }
 
-    override fun setEntry(index: Int, value: Int): Int {
+    override fun setEntry(
+        index: Int,
+        value: Int,
+    ): Int {
         validateIndex(index)
         validateValue(value, bitsPerEntry.toInt())
         val entriesPerLong = entriesPerLong(bitsPerEntry.toInt())
@@ -78,7 +84,10 @@ class AlignedBitPackedArray(
         }
     }
 
-    private fun validateValue(value: Int, bitsPerEntry: Int) {
+    private fun validateValue(
+        value: Int,
+        bitsPerEntry: Int,
+    ) {
         require(value >= 0) {
             "Bit-packed values must be non-negative, got $value."
         }
@@ -95,7 +104,10 @@ class AlignedBitPackedArray(
             return 64 / bitsPerEntry
         }
 
-        private fun requiredLongCount(size: Int, bitsPerEntry: Int): Int {
+        private fun requiredLongCount(
+            size: Int,
+            bitsPerEntry: Int,
+        ): Int {
             require(size >= 0) {
                 "size must be non-negative, got $size."
             }
@@ -111,7 +123,7 @@ class AlignedBitPackedArray(
 class CrossBitPackedArray(
     override var bitsPerEntry: UByte,
     override val size: Int,
-    override var packed: LongArray = LongArray(requiredLongCount(size, bitsPerEntry.toInt()))
+    override var packed: LongArray = LongArray(requiredLongCount(size, bitsPerEntry.toInt())),
 ) : BitPackedArray {
     private val maxEntryMask: Long
         get() = (1L shl bitsPerEntry.toInt()) - 1L
@@ -135,7 +147,10 @@ class CrossBitPackedArray(
         return (lowerPart or (upperPart shl lowerBits)).toInt()
     }
 
-    override fun setEntry(index: Int, value: Int): Int {
+    override fun setEntry(
+        index: Int,
+        value: Int,
+    ): Int {
         validateIndex(index)
         validateValue(value, bitsPerEntry.toInt())
         val previous = get(index)
@@ -188,7 +203,11 @@ class CrossBitPackedArray(
         }
     }
 
-    private fun readFromStorage(index: Int, bitsPerEntry: Int, storage: LongArray): Int {
+    private fun readFromStorage(
+        index: Int,
+        bitsPerEntry: Int,
+        storage: LongArray,
+    ): Int {
         val mask = (1L shl bitsPerEntry) - 1L
         val bitOffset = index.toLong() * bitsPerEntry.toLong()
         val longIndex = (bitOffset / 64L).toInt()
@@ -212,7 +231,10 @@ class CrossBitPackedArray(
         }
     }
 
-    private fun validateValue(value: Int, bitsPerEntry: Int) {
+    private fun validateValue(
+        value: Int,
+        bitsPerEntry: Int,
+    ) {
         require(value >= 0) {
             "Bit-packed values must be non-negative, got $value."
         }
@@ -222,7 +244,10 @@ class CrossBitPackedArray(
     }
 
     companion object {
-        private fun requiredLongCount(size: Int, bitsPerEntry: Int): Int {
+        private fun requiredLongCount(
+            size: Int,
+            bitsPerEntry: Int,
+        ): Int {
             require(size >= 0) {
                 "size must be non-negative, got $size."
             }

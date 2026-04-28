@@ -35,12 +35,15 @@ data class PlayerSample(
     val id: String,
 )
 
-private val json = Json {
-    encodeDefaults = false
-    explicitNulls = false
-}
+private val json =
+    Json {
+        encodeDefaults = false
+        explicitNulls = false
+    }
 
-class StatusResponsePacket(private val statusResponse: StatusResponse) : ClientboundPacket {
+class StatusResponsePacket(
+    private val statusResponse: StatusResponse,
+) : ClientboundPacket {
     override fun encode(out: Sink) {
         println(json.encodeToString(statusResponse))
         out.writeMCString(

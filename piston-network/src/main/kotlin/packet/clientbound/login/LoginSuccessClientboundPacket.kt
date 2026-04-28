@@ -7,7 +7,10 @@ import dev.sleepyswords.piston.network.VarNum.writeVarInt
 import kotlinx.io.Sink
 import kotlin.uuid.Uuid
 
-data class LoginSuccessClientboundPacket(val username: String, val uuid: Uuid) : ClientboundPacket {
+data class LoginSuccessClientboundPacket(
+    val username: String,
+    val uuid: Uuid,
+) : ClientboundPacket {
     override fun encode(out: Sink) {
         out.writeUuid(uuid)
         out.writeMCString(username)

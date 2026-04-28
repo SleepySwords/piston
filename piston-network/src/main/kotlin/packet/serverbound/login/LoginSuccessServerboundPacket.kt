@@ -10,5 +10,3 @@ class LoginSuccessServerboundPacket : ServerboundPacket {
         }
     }
 }
-
-

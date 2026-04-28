@@ -15,51 +15,62 @@ import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigu
 import dev.sleepyswords.utils.utility.ChunkVertex
 import dev.sleepyswords.utils.world.TestChunkGenerator
 
-suspend fun handleFinishConfigurationPacket(packet: FinishConfigurationPacket, session: GameSession) {
+suspend fun handleFinishConfigurationPacket(
+    packet: FinishConfigurationPacket,
+    session: GameSession,
+) {
     session.gameState = GameState.PLAY
 
-    session.writeServerPacket(LoginPacket(
-        entityID = 0,
-        isHardcore = false,
-        dimensionNames = listOf(),
-        maxPlayers = 10,
-        viewDistance = 10,
-        simulationDistance = 10,
-        reducedDebugInfo = false,
-        enableRespawnScreen = false,
-        doLimitedCrafting = false,
-        dimensionType = 0,
-        dimensionName = "ok",
-        hashedSeed = 0,
-        gameMode = GameMode.SURVIVAL,
-        previousGameMode = null,
-        isDebug = false,
-        isFlat = false,
-        deathLocation = null,
-        portalCooldown = 0,
-        seaLevel = 0,
-        enforceSecureChat = false,
-    ))
+    session.writeServerPacket(
+        LoginPacket(
+            entityID = 0,
+            isHardcore = false,
+            dimensionNames = listOf(),
+            maxPlayers = 10,
+            viewDistance = 10,
+            simulationDistance = 10,
+            reducedDebugInfo = false,
+            enableRespawnScreen = false,
+            doLimitedCrafting = false,
+            dimensionType = 0,
+            dimensionName = "ok",
+            hashedSeed = 0,
+            gameMode = GameMode.SURVIVAL,
+            previousGameMode = null,
+            isDebug = false,
+            isFlat = false,
+            deathLocation = null,
+            portalCooldown = 0,
+            seaLevel = 0,
+            enforceSecureChat = false,
+        ),
+    )
 
-    session.writeServerPacket(SynchronizePlayerPosition(
-        0,
-        Position(0.0, 50.0, 0.0),
-        Velocity(),
-        Rotation(),
-        0,
-    ))
+    session.writeServerPacket(
+        SynchronizePlayerPosition(
+            0,
+            Position(0.0, 50.0, 0.0),
+            Velocity(),
+            Rotation(),
+            0,
+        ),
+    )
 
-    session.writeServerPacket(GameEventPacket(
-        GameEvent.START_WAIT_FOR_CHUNKS,
-        value = 0.0f
-    ))
+    session.writeServerPacket(
+        GameEventPacket(
+            GameEvent.START_WAIT_FOR_CHUNKS,
+            value = 0.0f,
+        ),
+    )
 
-    for (x in -1 until  2) {
-        for (z in -1 until  2) {
-            session.writeServerPacket(ChunkDataAndUpdateLightPacket(
-                chunkVertex = ChunkVertex(x, z),
-                chunk = TestChunkGenerator().generateChunk(ChunkVertex(x, z))
-            ))
+    for (x in -1 until 2) {
+        for (z in -1 until 2) {
+            session.writeServerPacket(
+                ChunkDataAndUpdateLightPacket(
+                    chunkVertex = ChunkVertex(x, z),
+                    chunk = TestChunkGenerator().generateChunk(ChunkVertex(x, z)),
+                ),
+            )
         }
     }
 }

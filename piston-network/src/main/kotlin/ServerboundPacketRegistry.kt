@@ -2,11 +2,11 @@ package dev.sleepyswords.piston.network
 
 import dev.sleepyswords.piston.network.handler.configuration.handleClientInformationPacket
 import dev.sleepyswords.piston.network.handler.configuration.handleFinishConfigurationPacket
-import dev.sleepyswords.piston.network.handler.status.handlePingPacket
-import dev.sleepyswords.piston.network.handler.status.handleStatusRequestPacket
 import dev.sleepyswords.piston.network.handler.handshake.handleHandshakePacket
 import dev.sleepyswords.piston.network.handler.login.handleLoginStartPacket
 import dev.sleepyswords.piston.network.handler.login.handleLoginSuccessPacket
+import dev.sleepyswords.piston.network.handler.status.handlePingPacket
+import dev.sleepyswords.piston.network.handler.status.handleStatusRequestPacket
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
 import dev.sleepyswords.piston.network.packet.common.configuration.PluginMessagePacket
 import dev.sleepyswords.piston.network.packet.serverbound.BundleItemSelectedPacket
@@ -24,11 +24,20 @@ import kotlin.arrayOfNulls
 
 private val logger = KotlinLogging.logger {}
 
-enum class GameState(val id: Int) {
-    HANDSHAKE(0), STATUS(1), LOGIN(2), CONFIGURATION(3), PLAY(4)
+enum class GameState(
+    val id: Int,
+) {
+    HANDSHAKE(0),
+    STATUS(1),
+    LOGIN(2),
+    CONFIGURATION(3),
+    PLAY(4),
 }
 
-data class GameSession(var gameState: GameState, val writeChannel: ByteWriteChannel) {
+data class GameSession(
+    var gameState: GameState,
+    val writeChannel: ByteWriteChannel,
+) {
     suspend fun writeServerPacket(packet: ClientboundPacket) {
         logger.info { "Writing server packet $packet" }
         writeChannel.writeServerPacket(packet)
@@ -36,15 +45,16 @@ data class GameSession(var gameState: GameState, val writeChannel: ByteWriteChan
 }
 
 open class ServerboundPacketRegistry {
-    private val registry = Array(GameState.entries.size) {
-        arrayOfNulls<suspend (Source, GameSession) -> Unit>(256)
-    }
+    private val registry =
+        Array(GameState.entries.size) {
+            arrayOfNulls<suspend (Source, GameSession) -> Unit>(256)
+        }
 
-    fun <T: ServerboundPacket> register(
+    fun <T : ServerboundPacket> register(
         gameState: GameState,
         opcode: Int,
         decoder: ClientPacketDecoder<T>,
-        handler: suspend (T, GameSession) -> Unit
+        handler: suspend (T, GameSession) -> Unit,
     ) {
         registry[gameState.id][opcode] = { source, session ->
             val packet = decoder.decode(source)
@@ -53,7 +63,11 @@ open class ServerboundPacketRegistry {
         }
     }
 
-    suspend fun handlePacket(gameSession: GameSession, opcode: Int, source: Source) {
+    suspend fun handlePacket(
+        gameSession: GameSession,
+        opcode: Int,
+        source: Source,
+    ) {
         val handler = registry[gameSession.gameState.id][opcode]
         if (handler == null) {
             logger.error { "Received unknown opcode $opcode from ${gameSession.gameState}" }
@@ -63,8 +77,11 @@ open class ServerboundPacketRegistry {
     }
 }
 
-fun handlePrintPacket(packet: ServerboundPacket, gameSession: GameSession) {
-    logger.debug { "Unhandled packet: ${packet.toString()}" }
+fun handlePrintPacket(
+    packet: ServerboundPacket,
+    gameSession: GameSession,
+) {
+    logger.debug { "Unhandled packet: $packet" }
 }
 
 object ServerboundPacketRegistryCommon : ServerboundPacketRegistry() {

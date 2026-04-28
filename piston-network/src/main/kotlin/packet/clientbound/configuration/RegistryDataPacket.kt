@@ -8,7 +8,10 @@ import dev.sleepyswords.piston.network.VarNum.writeMCString
 import dev.sleepyswords.piston.network.VarNum.writeVarInt
 import kotlinx.io.Sink
 
-class RegistryDataPacket(val registryID: String, val entriesID: List<Pair<String, Nbt.CompoundTag?>>) : ClientboundPacket {
+class RegistryDataPacket(
+    val registryID: String,
+    val entriesID: List<Pair<String, Nbt.CompoundTag?>>,
+) : ClientboundPacket {
     override fun encode(out: Sink) {
         out.writeMCString(registryID)
         out.writeVarInt(entriesID.size)

@@ -1,7 +1,8 @@
 package dev.sleepyswords.piston.network
 
 import dev.sleepyswords.piston.network.VarNum.writeVarInt
-import io.ktor.utils.io.*
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.writePacket
 import kotlinx.io.Buffer
 import kotlinx.io.Sink
 

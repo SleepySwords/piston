@@ -7,10 +7,11 @@ import dev.sleepyswords.piston.network.VarNum.readMCString
 data class ClientInformationPacket(
     val locale: String,
     val viewDistance: Byte,
-) : ServerboundPacket{
+) : ServerboundPacket {
     companion object {
-        val Decoder = ClientPacketDecoder { buffer ->
-            ClientInformationPacket(buffer.readMCString(), buffer.readByte())
-        }
+        val Decoder =
+            ClientPacketDecoder { buffer ->
+                ClientInformationPacket(buffer.readMCString(), buffer.readByte())
+            }
     }
 }

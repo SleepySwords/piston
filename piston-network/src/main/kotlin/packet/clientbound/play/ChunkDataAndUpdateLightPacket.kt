@@ -11,7 +11,10 @@ import kotlinx.io.Buffer
 import kotlinx.io.Sink
 import kotlinx.io.writeUByte
 
-fun encodeBlockData(out: Sink, chunk: Chunk) {
+fun encodeBlockData(
+    out: Sink,
+    chunk: Chunk,
+) {
     chunk.chunkSections.forEach { section ->
         out.writeShort(section.blockCount)
         println(section.blockCount)
@@ -21,12 +24,14 @@ fun encodeBlockData(out: Sink, chunk: Chunk) {
             is PaletteStrategy.SingleValued -> {
                 out.writeVarInt(strategy.value.getPhysicalBlock())
             }
+
             is PaletteStrategy.Direct -> {
                 TODO("Actually write")
             }
+
             is PaletteStrategy.Indirect -> {
                 out.writeVarInt(strategy.palette.size)
-                strategy.palette.forEach { block -> out.writeVarInt(block.getPhysicalBlock())}
+                strategy.palette.forEach { block -> out.writeVarInt(block.getPhysicalBlock()) }
                 strategy.blocks.packed.forEach(out::writeLong)
             }
         }
@@ -41,7 +46,7 @@ fun encodeBlockData(out: Sink, chunk: Chunk) {
 // Palette will be blocks which are then mapped to their immutable counterpart.
 class ChunkDataAndUpdateLightPacket(
     val chunkVertex: ChunkVertex,
-    val chunk: Chunk
+    val chunk: Chunk,
 ) : ClientboundPacket {
     override fun encode(out: Sink) {
         out.writeInt(chunkVertex.x)
