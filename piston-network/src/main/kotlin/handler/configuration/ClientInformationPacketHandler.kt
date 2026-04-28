@@ -12,6 +12,18 @@ import dev.sleepyswords.piston.network.packet.clientbound.configuration.Registry
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
 import dev.sleepyswords.piston.network.packet.serverbound.configuration.ClientInformationPacket
 
+open class DamageType(val exhaustion: Float, val message_id: String, val scaling: String) {
+    fun toNbt(): Nbt.CompoundTag {
+        return compoundTag {
+            "exhaustion" - floatTag(exhaustion)
+            "message_id" - stringTag(message_id)
+            "scaling" - stringTag(scaling)
+        }
+    }
+}
+
+object CactusDamageType : DamageType(0.1f, "cactus", "when_caused_by_living_non_player")
+
 suspend fun handleClientInformationPacket(packet: ClientInformationPacket, session: GameSession) {
     session.writeServerPacket(RegistryDataPacket("minecraft:dimension_type", listOf(
         Pair("minecraft:overword", compoundTag {
@@ -118,5 +130,89 @@ suspend fun handleClientInformationPacket(packet: ClientInformationPacket, sessi
             }
         })
     )))
+    session.writeServerPacket(RegistryDataPacket("minecraft:cat_variant", listOf(
+        Pair("minecraft:white",compoundTag {
+            "asset_id" - stringTag("minecraft:entity/cat/white")
+            "spawn_conditions" - listTag(Nbt.CompoundTagType) {
+                add(compoundTag {
+                    "priority" - intTag(0)
+                })
+            }
+        })
+    )))
+    session.writeServerPacket(RegistryDataPacket("minecraft:chicken_variant", listOf(
+        Pair("minecraft:temperate",compoundTag {
+            "asset_id" - stringTag("minecraft:entity/chicken/temperate_white")
+            "spawn_conditions" - listTag(Nbt.CompoundTagType) {
+                add(compoundTag {
+                    "priority" - intTag(0)
+                })
+            }
+        })
+    )))
+    session.writeServerPacket(RegistryDataPacket("minecraft:cow_variant", listOf(
+        Pair("minecraft:temperate",compoundTag {
+            "asset_id" - stringTag("minecraft:entity/cow/temperate_cow")
+            "spawn_conditions" - listTag(Nbt.CompoundTagType) {
+                add(compoundTag {
+                    "priority" - intTag(0)
+                })
+            }
+        })
+    )))
+    session.writeServerPacket(RegistryDataPacket("minecraft:frog_variant", listOf(
+        Pair("minecraft:temperate2",compoundTag {
+            "asset_id" - stringTag("minecraft:entity/frog/temperate_frog")
+            "spawn_conditions" - listTag(Nbt.CompoundTagType) {
+                add(compoundTag {
+                    "priority" - intTag(0)
+                })
+            }
+        })
+    )))
+    session.writeServerPacket(RegistryDataPacket("minecraft:wolf_sound_variant", listOf(
+        Pair("minecraft:cute",compoundTag {
+            "ambient_sound" - stringTag("minecraft:entity.wolf_cute.ambient")
+            "death_sound" - stringTag("minecraft:entity.wolf_cute.death")
+            "growl_sound" - stringTag("minecraft:entity.wolf_cute.growl")
+            "hurt_sound" - stringTag("minecraft:entity.wolf_cute.hurt")
+            "pant_sound" - stringTag("minecraft:entity.wolf_cute.pant")
+            "whine_sound" - stringTag("minecraft:entity.wolf_cute.whine")
+        })
+    )))
+
+    val requiredDamageTypes = listOf(
+        "minecraft:cactus",
+        "minecraft:campfire",
+        "minecraft:cramming",
+        "minecraft:dragon_breath",
+        "minecraft:drown",
+        "minecraft:dry_out",
+        "minecraft:ender_pearl",
+        "minecraft:fall",
+        "minecraft:fly_into_wall",
+        "minecraft:freeze",
+        "minecraft:generic",
+        "minecraft:generic_kill",
+        "minecraft:hot_floor",
+        "minecraft:in_fire",
+        "minecraft:in_wall",
+        "minecraft:lava",
+        "minecraft:lightning_bolt",
+        "minecraft:magic",
+        "minecraft:on_fire",
+        "minecraft:out_of_world",
+        "minecraft:outside_border",
+        "minecraft:stalagmite",
+        "minecraft:starve",
+        "minecraft:sweet_berry_bush",
+        "minecraft:wither",
+    )
+
+    for (requiredDamageType in requiredDamageTypes) {
+        session.writeServerPacket(RegistryDataPacket("minecraft:damage_type", listOf(
+            requiredDamageType to CactusDamageType.toNbt()
+        )))
+    }
     session.writeServerPacket(FinishConfigurationPacket())
 }

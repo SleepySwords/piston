@@ -5,17 +5,12 @@ import dev.sleepyswords.piston.network.VarNum.writeBoolean
 import dev.sleepyswords.piston.network.VarNum.writeMCString
 import dev.sleepyswords.piston.network.VarNum.writeBlockVertex
 import dev.sleepyswords.piston.network.VarNum.writeVarInt
+import dev.sleepyswords.utils.utility.BlockVertex
 import kotlinx.io.Sink
 
 enum class GameMode(val gameModeID: Byte) {
     SURVIVAL(0), CREATIVE(1), ADVENTURE(2), SPECTATOR(3)
 }
-
-data class BlockVertex(
-    var x: Int = 0,
-    var y: Int = 0,
-    var z: Short = 0
-)
 
 class LoginPacket(
     val entityID: Int,

@@ -2,6 +2,9 @@ package dev.sleepyswords.piston.network.handler.configuration
 
 import dev.sleepyswords.piston.network.GameSession
 import dev.sleepyswords.piston.network.GameState
+import dev.sleepyswords.piston.network.packet.clientbound.play.ChunkDataAndUpdateLightPacket
+import dev.sleepyswords.piston.network.packet.clientbound.play.GameEvent
+import dev.sleepyswords.piston.network.packet.clientbound.play.GameEventPacket
 import dev.sleepyswords.piston.network.packet.clientbound.play.GameMode
 import dev.sleepyswords.piston.network.packet.clientbound.play.LoginPacket
 import dev.sleepyswords.piston.network.packet.clientbound.play.Position
@@ -9,6 +12,8 @@ import dev.sleepyswords.piston.network.packet.clientbound.play.Rotation
 import dev.sleepyswords.piston.network.packet.clientbound.play.SynchronizePlayerPosition
 import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
+import dev.sleepyswords.utils.utility.ChunkVertex
+import dev.sleepyswords.utils.world.TestChunkGenerator
 
 suspend fun handleFinishConfigurationPacket(packet: FinishConfigurationPacket, session: GameSession) {
     session.gameState = GameState.PLAY
@@ -38,9 +43,23 @@ suspend fun handleFinishConfigurationPacket(packet: FinishConfigurationPacket, s
 
     session.writeServerPacket(SynchronizePlayerPosition(
         0,
-        Position(),
+        Position(0.0, 50.0, 0.0),
         Velocity(),
         Rotation(),
         0,
     ))
+
+    session.writeServerPacket(GameEventPacket(
+        GameEvent.START_WAIT_FOR_CHUNKS,
+        value = 0.0f
+    ))
+
+    for (x in -1 until  2) {
+        for (z in -1 until  2) {
+            session.writeServerPacket(ChunkDataAndUpdateLightPacket(
+                chunkVertex = ChunkVertex(x, z),
+                chunk = TestChunkGenerator().generateChunk(ChunkVertex(x, z))
+            ))
+        }
+    }
 }

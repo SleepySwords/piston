@@ -18,6 +18,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     implementation(project(":piston-nbt"))
+    implementation(project(":piston-core"))
 
     implementation("io.ktor:ktor-network:3.4.2")
     implementation("ch.qos.logback:logback-classic:1.5.13")
