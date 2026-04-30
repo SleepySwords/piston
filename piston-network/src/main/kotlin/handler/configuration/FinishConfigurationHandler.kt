@@ -13,10 +13,22 @@ import dev.sleepyswords.piston.network.packet.clientbound.play.SynchronizePlayer
 import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
 import dev.sleepyswords.utils.utility.ChunkVertex
+import dev.sleepyswords.utils.world.Chunk
+import dev.sleepyswords.utils.world.NoiseGenerator
+import dev.sleepyswords.utils.world.NoiseGenerator3D
 import dev.sleepyswords.utils.world.TestChunkGenerator
 
 object PreGeneratedChunks {
-    val chunk = List(9) {i -> TestChunkGenerator().generateChunk(ChunkVertex(i%3 - 1, i / 3 - 1))}
+    val map: MutableMap<ChunkVertex, Chunk> = mutableMapOf()
+
+    operator fun get(chunkVertex: ChunkVertex): Chunk {
+        if (map.containsKey(chunkVertex)) {
+            return map[chunkVertex]!!
+        }
+
+        map[chunkVertex] = NoiseGenerator3D().generateChunk(chunkVertex)
+        return map[chunkVertex]!!
+    }
 }
 
 suspend fun handleFinishConfigurationPacket(
@@ -39,7 +51,7 @@ suspend fun handleFinishConfigurationPacket(
             dimensionType = 0,
             dimensionName = "ok",
             hashedSeed = 0,
-            gameMode = GameMode.SURVIVAL,
+            gameMode = GameMode.CREATIVE,
             previousGameMode = null,
             isDebug = false,
             isFlat = false,
@@ -53,7 +65,7 @@ suspend fun handleFinishConfigurationPacket(
     session.writeServerPacket(
         SynchronizePlayerPosition(
             0,
-            Position(0.0, 50.0, 0.0),
+            Position(0.0, 400.0, 0.0),
             Velocity(),
             Rotation(),
             0,
@@ -67,12 +79,12 @@ suspend fun handleFinishConfigurationPacket(
         ),
     )
 
-    for (x in -1 until 2) {
-        for (z in -1 until 2) {
+    for (x in -5 until 5) {
+        for (z in -5 until 5) {
             session.writeServerPacket(
                 ChunkDataAndUpdateLightPacket(
                     chunkVertex = ChunkVertex(x, z),
-                    chunk = PreGeneratedChunks.chunk[x + 1 + (z + 1) * 3]
+                    chunk = PreGeneratedChunks[ChunkVertex(x, z)]
                 ),
             )
         }

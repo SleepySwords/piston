@@ -7,8 +7,6 @@ import kotlinx.coroutines.runBlocking
 
 fun main() =
     runBlocking {
-        println(PreGeneratedChunks.chunk.size)
-        println(Light.lightBuffer.size)
         println("Starting Piston server")
         NetworkManager().launchTCPServer("127.0.0.1", 25565)
     }
