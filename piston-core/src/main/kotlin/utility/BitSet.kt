@@ -1,6 +1,6 @@
-package dev.sleepyswords.utils.utility
+package dev.sleepyswords.piston.utility
 
-import dev.sleepyswords.utils.Utility
+import dev.sleepyswords.piston.Utility
 
 class BitSet(
     private val nBits: Int = 0,

@@ -1,4 +1,4 @@
-package dev.sleepyswords.utils.utility
+package dev.sleepyswords.piston.utility
 
 sealed interface BitPackedArray {
     val bitsPerEntry: UByte

@@ -1,7 +1,7 @@
-package dev.sleepyswords.utils.world
+package dev.sleepyswords.piston.world
 
-import dev.sleepyswords.utils.utility.AlignedBitPackedArray
-import dev.sleepyswords.utils.utility.BitPackedArray
+import dev.sleepyswords.piston.utility.AlignedBitPackedArray
+import dev.sleepyswords.piston.utility.BitPackedArray
 
 sealed class PaletteStrategy<T> {
     abstract val bitsPerEntry: UByte

@@ -3,7 +3,7 @@ package dev.sleepyswords.piston.network
 import dev.sleepyswords.piston.network.packet.clientbound.play.Position
 import dev.sleepyswords.piston.network.packet.clientbound.play.Rotation
 import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
-import dev.sleepyswords.utils.utility.BlockVertex
+import dev.sleepyswords.piston.utility.BlockVertex
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.readByte

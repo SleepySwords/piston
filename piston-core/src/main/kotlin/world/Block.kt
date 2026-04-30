@@ -1,4 +1,4 @@
-package dev.sleepyswords.utils.world
+package dev.sleepyswords.piston.world
 
 interface Block {
     fun getPhysicalBlock(): Int

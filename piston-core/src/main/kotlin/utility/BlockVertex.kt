@@ -1,4 +1,4 @@
-package dev.sleepyswords.utils.utility
+package dev.sleepyswords.piston.utility
 
 data class BlockVertex(
     var x: Int = 0,

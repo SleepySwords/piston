@@ -1,4 +1,4 @@
-package dev.sleepyswords.utils
+package dev.sleepyswords.piston
 
 object Utility {
     fun ceilDiv(

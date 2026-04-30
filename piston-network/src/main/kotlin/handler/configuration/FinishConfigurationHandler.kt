@@ -12,11 +12,9 @@ import dev.sleepyswords.piston.network.packet.clientbound.play.Rotation
 import dev.sleepyswords.piston.network.packet.clientbound.play.SynchronizePlayerPosition
 import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
-import dev.sleepyswords.utils.utility.ChunkVertex
-import dev.sleepyswords.utils.world.Chunk
-import dev.sleepyswords.utils.world.NoiseGenerator
-import dev.sleepyswords.utils.world.NoiseGenerator3D
-import dev.sleepyswords.utils.world.TestChunkGenerator
+import dev.sleepyswords.piston.utility.ChunkVertex
+import dev.sleepyswords.piston.world.Chunk
+import dev.sleepyswords.piston.world.NoiseGenerator3D
 
 object PreGeneratedChunks {
     val map: MutableMap<ChunkVertex, Chunk> = mutableMapOf()

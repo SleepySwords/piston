@@ -1,8 +1,8 @@
-package dev.sleepyswords.utils.world
+package dev.sleepyswords.piston.world
 
 import dev.sleepyswords.piston.noise.Noise
-import dev.sleepyswords.utils.utility.BlockVertex
-import dev.sleepyswords.utils.utility.ChunkVertex
+import dev.sleepyswords.piston.utility.BlockVertex
+import dev.sleepyswords.piston.utility.ChunkVertex
 
 interface ChunkGenerator {
     fun generateBlock(blockVertex: BlockVertex): Block

@@ -1,8 +1,7 @@
-package dev.sleepyswords.utils.world
+package dev.sleepyswords.piston.world
 
-import dev.sleepyswords.utils.Utility
-import dev.sleepyswords.utils.utility.BitSet
-import dev.sleepyswords.utils.utility.BlockVertex
+import dev.sleepyswords.piston.Utility
+import dev.sleepyswords.piston.utility.BlockVertex
 
 class ChunkSection(
     val blockPalette: Palette<Block>,

@@ -5,7 +5,7 @@ import dev.sleepyswords.piston.network.VarNum.writeBlockVertex
 import dev.sleepyswords.piston.network.VarNum.writeBoolean
 import dev.sleepyswords.piston.network.VarNum.writeMCString
 import dev.sleepyswords.piston.network.VarNum.writeVarInt
-import dev.sleepyswords.utils.utility.BlockVertex
+import dev.sleepyswords.piston.utility.BlockVertex
 import kotlinx.io.Sink
 
 enum class GameMode(

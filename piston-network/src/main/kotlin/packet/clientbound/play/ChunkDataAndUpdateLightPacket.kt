@@ -2,10 +2,10 @@ package dev.sleepyswords.piston.network.packet.clientbound.play
 
 import dev.sleepyswords.piston.network.ClientboundPacket
 import dev.sleepyswords.piston.network.VarNum.writeVarInt
-import dev.sleepyswords.utils.utility.BitSet
-import dev.sleepyswords.utils.utility.ChunkVertex
-import dev.sleepyswords.utils.world.Chunk
-import dev.sleepyswords.utils.world.PaletteStrategy
+import dev.sleepyswords.piston.utility.BitSet
+import dev.sleepyswords.piston.utility.ChunkVertex
+import dev.sleepyswords.piston.world.Chunk
+import dev.sleepyswords.piston.world.PaletteStrategy
 import io.ktor.utils.io.core.writePacket
 import kotlinx.io.Buffer
 import kotlinx.io.Sink
