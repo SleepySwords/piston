@@ -1,5 +1,6 @@
 package dev.sleepyswords.piston.network
 
+import dev.sleepyswords.piston.event.EventBus
 import dev.sleepyswords.piston.network.handler.configuration.handleClientInformationPacket
 import dev.sleepyswords.piston.network.handler.configuration.handleFinishConfigurationPacket
 import dev.sleepyswords.piston.network.handler.handshake.handleHandshakePacket
@@ -37,6 +38,7 @@ enum class GameState(
 data class GameSession(
     var gameState: GameState,
     val writeChannel: ByteWriteChannel,
+    var username: String? = null,
 ) {
     suspend fun writeServerPacket(packet: ClientboundPacket) {
         logger.info { "Writing server packet $packet" }
@@ -47,8 +49,21 @@ data class GameSession(
 open class ServerboundPacketRegistry {
     private val registry =
         Array(GameState.entries.size) {
-            arrayOfNulls<suspend (Source, GameSession) -> Unit>(256)
+            arrayOfNulls<suspend (Source, GameSession, EventBus) -> Unit>(256)
         }
+
+    fun <T : ServerboundPacket> register(
+        gameState: GameState,
+        opcode: Int,
+        decoder: ClientPacketDecoder<T>,
+        handler: suspend (T, GameSession, EventBus) -> Unit,
+    ) {
+        registry[gameState.id][opcode] = { source, session, eventBus ->
+            val packet = decoder.decode(source)
+            logger.debug { "Received packet $packet" }
+            handler(packet, session, eventBus)
+        }
+    }
 
     fun <T : ServerboundPacket> register(
         gameState: GameState,
@@ -56,7 +71,7 @@ open class ServerboundPacketRegistry {
         decoder: ClientPacketDecoder<T>,
         handler: suspend (T, GameSession) -> Unit,
     ) {
-        registry[gameState.id][opcode] = { source, session ->
+        registry[gameState.id][opcode] = { source, session, eventBus ->
             val packet = decoder.decode(source)
             logger.debug { "Received packet $packet" }
             handler(packet, session)
@@ -65,6 +80,7 @@ open class ServerboundPacketRegistry {
 
     suspend fun handlePacket(
         gameSession: GameSession,
+        eventBus: EventBus,
         opcode: Int,
         source: Source,
     ) {
@@ -73,7 +89,7 @@ open class ServerboundPacketRegistry {
 //            logger.error { "Received unknown opcode $opcode from ${gameSession.gameState}" }
             return
         }
-        handler(source, gameSession)
+        handler(source, gameSession, eventBus)
     }
 }
 
@@ -104,6 +120,5 @@ object ServerboundPacketRegistryCommon : ServerboundPacketRegistry() {
 }
 
 object ServerboundPacketRegistryV771 : ServerboundPacketRegistry() {
-    init {
-    }
+    init {}
 }

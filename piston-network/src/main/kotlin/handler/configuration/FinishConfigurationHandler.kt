@@ -1,5 +1,7 @@
 package dev.sleepyswords.piston.network.handler.configuration
 
+import dev.sleepyswords.piston.event.Event
+import dev.sleepyswords.piston.event.EventBus
 import dev.sleepyswords.piston.network.GameSession
 import dev.sleepyswords.piston.network.GameState
 import dev.sleepyswords.piston.network.packet.clientbound.play.ChunkDataAndUpdateLightPacket
@@ -29,9 +31,12 @@ object PreGeneratedChunks {
     }
 }
 
+data class PlayerLoginEvent(val playerName: String): Event
+
 suspend fun handleFinishConfigurationPacket(
     packet: FinishConfigurationPacket,
     session: GameSession,
+    eventBus: EventBus,
 ) {
     session.gameState = GameState.PLAY
 
@@ -59,6 +64,8 @@ suspend fun handleFinishConfigurationPacket(
             enforceSecureChat = false,
         ),
     )
+
+    eventBus.emit(PlayerLoginEvent(session.username!!))
 
     session.writeServerPacket(
         SynchronizePlayerPosition(

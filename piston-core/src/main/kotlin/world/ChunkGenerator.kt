@@ -61,8 +61,7 @@ class NoiseGenerator : ChunkGenerator {
 }
 
 class NoiseGenerator3D : ChunkGenerator {
-    override fun generateBlock(blockVertex: BlockVertex
-    ): Block {
+    override fun generateBlock(blockVertex: BlockVertex): Block {
         val noise: Double =
             Noise.octavePerlin(
                 x = blockVertex.x / X_PERIOD,
