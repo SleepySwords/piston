@@ -21,7 +21,9 @@ import dev.sleepyswords.piston.network.packet.serverbound.status.StatusRequestPa
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.io.Source
+import java.util.UUID
 import kotlin.arrayOfNulls
+import kotlin.uuid.Uuid
 
 private val logger = KotlinLogging.logger {}
 
@@ -39,6 +41,7 @@ data class GameSession(
     var gameState: GameState,
     val writeChannel: ByteWriteChannel,
     var username: String? = null,
+    var uuid: Uuid? = null,
 ) {
     suspend fun writeServerPacket(packet: ClientboundPacket) {
         logger.info { "Writing server packet $packet" }

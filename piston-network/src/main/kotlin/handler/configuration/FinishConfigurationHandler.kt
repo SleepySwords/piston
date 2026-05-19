@@ -17,6 +17,7 @@ import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigu
 import dev.sleepyswords.piston.utility.ChunkVertex
 import dev.sleepyswords.piston.world.Chunk
 import dev.sleepyswords.piston.world.NoiseGenerator3D
+import kotlin.uuid.Uuid
 
 object PreGeneratedChunks {
     val map: MutableMap<ChunkVertex, Chunk> = mutableMapOf()
@@ -31,7 +32,7 @@ object PreGeneratedChunks {
     }
 }
 
-data class PlayerLoginEvent(val playerName: String): Event
+data class PlayerLoginEvent(val playerName: String, val uuid: Uuid): Event
 
 suspend fun handleFinishConfigurationPacket(
     packet: FinishConfigurationPacket,
@@ -65,7 +66,7 @@ suspend fun handleFinishConfigurationPacket(
         ),
     )
 
-    eventBus.emit(PlayerLoginEvent(session.username!!))
+    eventBus.emitServerBound(PlayerLoginEvent(session.username!!, session.uuid!!))
 
     session.writeServerPacket(
         SynchronizePlayerPosition(

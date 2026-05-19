@@ -9,5 +9,6 @@ suspend fun handleLoginStartPacket(
     session: GameSession,
 ) {
     session.username = packet.username
+    session.uuid = packet.uuid
     session.writeServerPacket(LoginSuccessClientboundPacket(packet.username, packet.uuid))
 }

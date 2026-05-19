@@ -9,9 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class TCPSystem: System {
     val eventBus = EventBus()
@@ -27,12 +25,12 @@ class TCPSystem: System {
 
     override fun update(eventBuffer: EventBuffer) {
         while (true) {
-            val event = eventBus.poll() ?: break
+            val event = eventBus.pollServerBound() ?: break
             eventBuffer.emit(event)
         }
     }
 
     override fun postUpdate(events: List<Event>) {
-
+        events.forEach(eventBus::emitServerBound)
     }
 }

@@ -7,6 +7,8 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.io.EOFException
 
@@ -23,22 +25,27 @@ class NetworkManager {
 
         logger.info { "Server listening on $hostname:$port" }
 
-        while (true) {
-            val socket = server.accept()
-            val writeChannel = socket.openWriteChannel(autoFlush = true)
-            val readChannel = socket.openReadChannel()
+        coroutineScope {
+            while (true) {
+                val socket = server.accept()
 
-            val session = GameSession(gameState = GameState.HANDSHAKE, writeChannel = writeChannel)
+                this.launch {
+                    val writeChannel = socket.openWriteChannel(autoFlush = true)
+                    val readChannel = socket.openReadChannel()
 
-            try {
-                while (!readChannel.isClosedForRead) {
-                    val (opcode, packet) = readChannel.readServerPacket()
-                    ServerboundPacketRegistryCommon.handlePacket(session, eventBus, opcode, packet)
-                }
-            } catch (_: EOFException) {
-            } finally {
-                withContext(Dispatchers.IO) {
-                    socket.close()
+                    val session = GameSession(gameState = GameState.HANDSHAKE, writeChannel = writeChannel)
+
+                    try {
+                        while (!readChannel.isClosedForRead) {
+                            val (opcode, packet) = readChannel.readServerPacket()
+                            ServerboundPacketRegistryCommon.handlePacket(session, eventBus, opcode, packet)
+                        }
+                    } catch (_: EOFException) {
+                    } finally {
+                        withContext(Dispatchers.IO) {
+                            socket.close()
+                        }
+                    }
                 }
             }
         }
