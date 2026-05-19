@@ -8,16 +8,19 @@ interface IBlockState {
     fun <T> with(property: Property<T>, value: T): BlockState
 }
 
+// This will become the actual block...
 class BlockDefinition(
     val blockID: Int,
+    val isAir: Boolean,
     val values: List<Property<*>>,
     val multipliers: IntArray,
     val blocks: List<BlockState>,
-)
+) {
+}
 
 // In the future, maybe use bit-packing to remove division, or transition tables with an array
 abstract class BlockState(
-    private val definition: BlockDefinition,
+    val definition: BlockDefinition,
     private val stateID: Int
 ) : IBlockState {
     override fun <T> get(property: Property<T>): T? {
@@ -35,6 +38,8 @@ abstract class BlockState(
     }
 
     val id = definition.blockID + stateID
+
+    open fun getPhysicalBlockState(): BlockState = this
 }
 
 interface Property<T> {
@@ -111,7 +116,7 @@ class GrassState(definition: BlockDefinition, stateID: Int) :
 }
 
 fun main() {
-    var grassState = BlockRegistry().defaultBlockState<GrassState>()
+    var grassState = BlockRegistry.defaultBlockState<GrassState>()
 
     println(grassState.getDirection())
     println(grassState.getSnowy())

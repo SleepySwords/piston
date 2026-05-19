@@ -21,7 +21,8 @@ fun encodeBlockData(
         out.writeUByte(section.blockPalette.bitsPerEntry)
         when (val strategy = section.blockPalette.paletteStrategy) {
             is PaletteStrategy.SingleValued -> {
-                out.writeVarInt(strategy.value.getPhysicalBlock())
+                // Remap to a registry per version?
+                out.writeVarInt(strategy.value.getPhysicalBlockState().id)
             }
 
             is PaletteStrategy.Direct -> {
@@ -30,7 +31,7 @@ fun encodeBlockData(
 
             is PaletteStrategy.Indirect -> {
                 out.writeVarInt(strategy.palette.size)
-                strategy.palette.forEach { block -> out.writeVarInt(block.getPhysicalBlock()) }
+                strategy.palette.forEach { block -> out.writeVarInt(block.getPhysicalBlockState().id) }
                 strategy.blocks.packed.forEach(out::writeLong)
             }
         }

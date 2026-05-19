@@ -1,14 +1,18 @@
 package dev.sleepyswords.piston.world
 
 import dev.sleepyswords.piston.block.Air
+import dev.sleepyswords.piston.block.AirState
 import dev.sleepyswords.piston.block.Block
+import dev.sleepyswords.piston.block.BlockRegistry
+import dev.sleepyswords.piston.block.BlockState
 import dev.sleepyswords.piston.block.Stone
+import dev.sleepyswords.piston.block.StoneState
 import dev.sleepyswords.piston.noise.Noise
 import dev.sleepyswords.piston.utility.BlockVertex
 import dev.sleepyswords.piston.utility.ChunkVertex
 
 interface ChunkGenerator {
-    fun generateBlock(blockVertex: BlockVertex): Block
+    fun generateBlock(blockVertex: BlockVertex): BlockState
 
     fun generateChunk(chunkVertex: ChunkVertex): Chunk {
         val chunk = Chunk()
@@ -27,14 +31,15 @@ interface ChunkGenerator {
 }
 
 class TestChunkGenerator : ChunkGenerator {
-    override fun generateBlock(blockVertex: BlockVertex): Block {
+    override fun generateBlock(blockVertex: BlockVertex): BlockState {
         if (blockVertex.x == 10 && blockVertex.z == 10) {
-            return Stone
+            BlockRegistry.defaultBlockState<StoneState>()
         }
         return if (blockVertex.y <= 10 && blockVertex.x != 10 && blockVertex.z != 10) {
-            Stone
+            BlockRegistry.defaultBlockState<StoneState>()
         } else {
-            Air
+            BlockRegistry.defaultBlockState<AirState>()
+
         }
     }
 }
@@ -45,7 +50,7 @@ const val Z_PERIOD = 64.0
 
 class NoiseGenerator : ChunkGenerator {
     override fun generateBlock(blockVertex: BlockVertex
-    ): Block {
+    ): BlockState {
         val noise: Double =
             Noise.octavePerlin(
                 x = blockVertex.x / X_PERIOD,
@@ -56,15 +61,15 @@ class NoiseGenerator : ChunkGenerator {
             )
 
         return if (blockVertex.y < (noise * 64 + 90).toInt()) {
-            Stone
+            BlockRegistry.defaultBlockState<StoneState>()
         } else {
-            Air
+            BlockRegistry.defaultBlockState<AirState>()
         }
     }
 }
 
 class NoiseGenerator3D : ChunkGenerator {
-    override fun generateBlock(blockVertex: BlockVertex): Block {
+    override fun generateBlock(blockVertex: BlockVertex): BlockState {
         val noise: Double =
             Noise.octavePerlin(
                 x = blockVertex.x / X_PERIOD,
@@ -75,9 +80,9 @@ class NoiseGenerator3D : ChunkGenerator {
             )
 
         return if (0.0 < noise) {
-            Stone
+            BlockRegistry.defaultBlockState<StoneState>()
         } else {
-            Air
+            BlockRegistry.defaultBlockState<AirState>()
         }
     }
 }

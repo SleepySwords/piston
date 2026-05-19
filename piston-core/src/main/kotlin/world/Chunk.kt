@@ -2,24 +2,27 @@ package dev.sleepyswords.piston.world
 
 import dev.sleepyswords.piston.Utility
 import dev.sleepyswords.piston.block.Air
+import dev.sleepyswords.piston.block.AirState
 import dev.sleepyswords.piston.block.Block
+import dev.sleepyswords.piston.block.BlockRegistry
+import dev.sleepyswords.piston.block.BlockState
 import dev.sleepyswords.piston.utility.BlockVertex
 
 class ChunkSection(
-    val blockPalette: Palette<Block>,
+    val blockPalette: Palette<BlockState>,
     var blockCount: Short,
 ) {
-    constructor() : this(Palette(Air), 0)
+    constructor() : this(Palette(BlockRegistry.defaultBlockState<AirState>()), 0)
 
     operator fun set(
         x: Int,
         y: Int,
         z: Int,
-        block: Block,
+        block: BlockState,
     ) {
         val old = get(x, y, z)
-        if (old.isAirBlock() != block.isAirBlock()) {
-            blockCount = (blockCount + if (block.isAirBlock()) -1 else 1).toShort()
+        if (old.definition.isAir != block.definition.isAir) {
+            blockCount = (blockCount + if (block.definition.isAir) -1 else 1).toShort()
         }
         blockPalette[Chunk.getIndex(x, y, z)] = block
     }
@@ -28,7 +31,7 @@ class ChunkSection(
         x: Int,
         y: Int,
         z: Int,
-    ): Block = blockPalette[Chunk.getIndex(x, y, z)]
+    ): BlockState = blockPalette[Chunk.getIndex(x, y, z)]
 }
 
 class Chunk {
@@ -42,7 +45,7 @@ class Chunk {
 
     operator fun set(
         blockVertex: BlockVertex,
-        block: Block,
+        block: BlockState,
     ) {
         set(blockVertex.x, blockVertex.y, blockVertex.z, block)
     }
@@ -51,20 +54,20 @@ class Chunk {
         x: Int,
         y: Short,
         z: Int,
-        block: Block,
+        block: BlockState,
     ) {
         val chunkIndex = (y - MIN_HEIGHT) / CHUNK_SECTION_HEIGHT
         val chunkOffset = (y - MIN_HEIGHT) % CHUNK_SECTION_HEIGHT
         chunkSections[chunkIndex][x, chunkOffset, z] = block
     }
 
-    operator fun get(blockVertex: BlockVertex): Block = get(blockVertex.x, blockVertex.y, blockVertex.z)
+    operator fun get(blockVertex: BlockVertex): BlockState = get(blockVertex.x, blockVertex.y, blockVertex.z)
 
     operator fun get(
         x: Int,
         y: Short,
         z: Int,
-    ): Block {
+    ): BlockState {
         val chunkIndex = (y - MIN_HEIGHT) / CHUNK_SECTION_HEIGHT
         val chunkOffset = (y - MIN_HEIGHT) % CHUNK_SECTION_HEIGHT
         return chunkSections[chunkIndex][x, chunkOffset, z]

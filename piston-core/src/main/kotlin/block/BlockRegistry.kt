@@ -2,21 +2,29 @@ package dev.sleepyswords.piston.block
 
 import kotlin.reflect.KClass
 
-class BlockRegistry {
+object BlockRegistry {
     var blockID = 0
 
     val defaultBlockStates = mutableMapOf<KClass<*>, BlockState>()
 
     init {
-        registerBlock<GrassState>(GrassState.PROPERTIES) { a, b -> GrassState(a, b) }
+        registerBlock<AirState>(true, emptyList()) { a, b -> AirState(a, b) }
+        registerBlock<StoneState>(false, emptyList()) { a, b -> StoneState(a, b) }
+        blank(7)
+        registerBlock<GrassState>(false, GrassState.PROPERTIES) { a, b -> GrassState(a, b) }
+    }
+
+    fun blank(skip: Int){
+        blockID += skip
     }
 
     inline fun <reified T> defaultBlockState() = defaultBlockStates[T::class] as T
 
-    inline fun <reified T> registerBlock(
+    inline fun <reified T: BlockState> registerBlock(
+        isAir: Boolean,
         properties: List<Property<*>>,
         blockConstructor: (def: BlockDefinition, stateID: Int
-    ) -> BlockState) {
+    ) -> T) {
         val multipliers: MutableList<Int> = mutableListOf()
         var currentMultiplier = 1
 
@@ -27,7 +35,7 @@ class BlockRegistry {
 
         val multiplies = multipliers.toIntArray()
         val blocks: MutableList<BlockState> = mutableListOf()
-        val blockDefinition = BlockDefinition(blockID, properties, multiplies, blocks)
+        val blockDefinition = BlockDefinition(blockID, isAir, properties, multiplies, blocks)
 
         for (i in 0 until currentMultiplier) {
             blocks.add(blockConstructor(blockDefinition, i))
