@@ -6,18 +6,16 @@ interface Block {
     fun isAirBlock(): Boolean
 }
 
-object Air : Block {
-    override fun getPhysicalBlock(): Int = 0
-
-    override fun isAirBlock(): Boolean = true
+class Air(blockID: Int, blocks: List<BlockState>) : BlockDefinition(blockID, blocks) {
+    override val properties: List<Property<*>> = emptyList()
+    override val isAir: Boolean = true
 }
 
 class AirState(blockDefinition: BlockDefinition, stateID: Int): BlockState(blockDefinition, stateID)
 
-object Stone : Block {
-    override fun getPhysicalBlock(): Int = 1
-
-    override fun isAirBlock(): Boolean = false
+class Stone(blockID: Int, blocks: List<BlockState>) : BlockDefinition(blockID, blocks) {
+    override val properties: List<Property<*>> = emptyList()
+    override val isAir: Boolean = false
 }
 
 class StoneState(blockDefinition: BlockDefinition, stateID: Int): BlockState(blockDefinition, stateID) {
@@ -26,8 +24,8 @@ class StoneState(blockDefinition: BlockDefinition, stateID: Int): BlockState(blo
     }
 }
 
-object Grass : Block {
-    override fun getPhysicalBlock(): Int = 2
 
-    override fun isAirBlock(): Boolean = false
+class Grass(blockID: Int, blocks: List<BlockState>) : BlockDefinition(blockID, blocks) {
+    override val properties: List<Property<*>> = GrassState.PROPERTIES
+    override val isAir: Boolean = false
 }

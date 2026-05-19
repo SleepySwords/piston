@@ -9,13 +9,24 @@ interface IBlockState {
 }
 
 // This will become the actual block...
-class BlockDefinition(
-    val blockID: Int,
-    val isAir: Boolean,
-    val values: List<Property<*>>,
-    val multipliers: IntArray,
-    val blocks: List<BlockState>,
+abstract class BlockDefinition(
+    val baseBlockID: Int,
+    val blockStates: List<BlockState>,
 ) {
+    abstract val properties: List<Property<*>>
+    abstract val isAir: Boolean
+
+    val multipliers by lazy {
+        val multipliers: MutableList<Int> = mutableListOf()
+        var currentMultiplier = 1
+
+        for (property in properties) {
+            multipliers.add(currentMultiplier)
+            currentMultiplier *= property.size
+        }
+
+        multipliers.toIntArray()
+    }
 }
 
 // In the future, maybe use bit-packing to remove division, or transition tables with an array
@@ -28,16 +39,16 @@ abstract class BlockState(
     }
 
     fun <T> getPropertyIndex(property: Property<T>): Int {
-        return (stateID / definition.multipliers[definition.values.indexOf(property)]) % property.size
+        return (stateID / definition.multipliers[definition.properties.indexOf(property)]) % property.size
     }
 
     override fun <T> with(property: Property<T>, value: T): BlockState {
-        val propertyIndex = definition.values.indexOf(property)
+        val propertyIndex = definition.properties.indexOf(property)
         val delta = (property.index(value) - getPropertyIndex(property)) * definition.multipliers[propertyIndex]
-        return definition.blocks[stateID + delta]
+        return definition.blockStates[stateID + delta]
     }
 
-    val id = definition.blockID + stateID
+    val id = definition.baseBlockID + stateID
 
     open fun getPhysicalBlockState(): BlockState = this
 }
