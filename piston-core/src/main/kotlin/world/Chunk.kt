@@ -1,6 +1,8 @@
 package dev.sleepyswords.piston.world
 
 import dev.sleepyswords.piston.Utility
+import dev.sleepyswords.piston.block.Air
+import dev.sleepyswords.piston.block.Block
 import dev.sleepyswords.piston.utility.BlockVertex
 
 class ChunkSection(
