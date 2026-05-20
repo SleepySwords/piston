@@ -13,6 +13,7 @@ fun main() =
         val systems = mutableListOf<System>()
 
         systems.add(TCPSystem())
+        systems.add(MOTDSystem())
 
         val eventBuffer = EventBuffer()
 

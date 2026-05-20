@@ -20,8 +20,9 @@ import dev.sleepyswords.piston.network.packet.serverbound.status.PingPacket
 import dev.sleepyswords.piston.network.packet.serverbound.status.StatusRequestPacket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.utils.io.ByteWriteChannel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.io.Source
-import java.util.UUID
 import kotlin.arrayOfNulls
 import kotlin.uuid.Uuid
 
@@ -40,12 +41,15 @@ enum class GameState(
 data class GameSession(
     var gameState: GameState,
     val writeChannel: ByteWriteChannel,
+    val writeLock: Mutex = Mutex(),
     var username: String? = null,
     var uuid: Uuid? = null,
 ) {
     suspend fun writeServerPacket(packet: ClientboundPacket) {
-        logger.info { "Writing server packet $packet" }
-        writeChannel.writeServerPacket(packet)
+        writeLock.withLock {
+            logger.info { "Writing server packet $packet" }
+            writeChannel.writeServerPacket(packet)
+        }
     }
 }
 

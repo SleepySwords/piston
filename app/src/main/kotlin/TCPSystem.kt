@@ -31,6 +31,6 @@ class TCPSystem: System {
     }
 
     override fun postUpdate(events: List<Event>) {
-        events.forEach(eventBus::emitServerBound)
+        events.forEach(eventBus::emitClientBound)
     }
 }

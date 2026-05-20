@@ -4,7 +4,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 
 class EventBus {
-    private val clientBoundEvents = Channel<Event>(
+    val clientBoundEvents = Channel<Event>(
         capacity = 1024,
         onBufferOverflow = BufferOverflow.SUSPEND
     )
