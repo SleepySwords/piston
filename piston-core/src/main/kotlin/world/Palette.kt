@@ -6,10 +6,16 @@ import dev.sleepyswords.piston.utility.BitPackedArray
 sealed class PaletteStrategy<T> {
     abstract val bitsPerEntry: UByte
 
+    abstract fun deepClone(): PaletteStrategy<T>
+
     class SingleValued<T>(
         val value: T,
     ) : PaletteStrategy<T>() {
         override val bitsPerEntry: UByte = 0u
+
+        override fun deepClone(): PaletteStrategy<T> {
+            return SingleValued(value)
+        }
     }
 
     class Indirect<T>(
@@ -24,12 +30,20 @@ sealed class PaletteStrategy<T> {
 
         override val bitsPerEntry: UByte
             get() = blocks.bitsPerEntry
+
+        override fun deepClone(): PaletteStrategy<T> {
+            return Indirect(blocks.deepClone(), palette.toMutableList())
+        }
     }
 
     class Direct<T>(
         val blocks: MutableList<T>,
     ) : PaletteStrategy<T>() {
         override val bitsPerEntry: UByte = 15u
+
+        override fun deepClone(): PaletteStrategy<T> {
+            return Direct(blocks.toMutableList())
+        }
     }
 }
 
@@ -47,6 +61,11 @@ class Palette<T>(
             is PaletteStrategy.Indirect -> currentStrategy.palette[currentStrategy.blocks[entry]]
             is PaletteStrategy.Direct -> currentStrategy.blocks[entry]
         }
+
+    // Note: This method assumes that the item that is being cloned is a constant or a singleton object.
+    fun deepClone(): Palette<T> {
+        return Palette(paletteStrategy.deepClone())
+    }
 
     operator fun set(
         entry: Int,

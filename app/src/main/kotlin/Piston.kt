@@ -2,6 +2,8 @@ package dev.sleepyswords.piston
 
 import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.system.System
+import dev.sleepyswords.piston.world.NoiseGenerator3D
+import dev.sleepyswords.piston.world.World
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.milliseconds
@@ -12,8 +14,13 @@ fun main() =
 
         val systems = mutableListOf<System>()
 
+        val world = World(
+            generator = NoiseGenerator3D(),
+        )
+
         systems.add(TCPSystem())
         systems.add(MOTDSystem())
+        systems.add(ChunkManagementSystem(world))
 
         val eventBuffer = EventBuffer()
 

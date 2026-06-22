@@ -1,9 +1,7 @@
 package dev.sleepyswords.piston.world
 
 import dev.sleepyswords.piston.Utility
-import dev.sleepyswords.piston.block.Air
 import dev.sleepyswords.piston.block.AirState
-import dev.sleepyswords.piston.block.Block
 import dev.sleepyswords.piston.block.BlockRegistry
 import dev.sleepyswords.piston.block.BlockState
 import dev.sleepyswords.piston.utility.BlockVertex
@@ -32,15 +30,24 @@ class ChunkSection(
         y: Int,
         z: Int,
     ): BlockState = blockPalette[Chunk.getIndex(x, y, z)]
+
+    fun deepClone(): ChunkSection {
+        return ChunkSection(blockPalette.deepClone(), blockCount)
+    }
 }
 
 class Chunk {
     val chunkSections: List<ChunkSection>
     val heightmap: ShortArray = ShortArray(CHUNK_WIDTH * CHUNK_LENGTH)
 
-    init {
+    constructor() {
         val noSections = Utility.ceilDiv(CHUNK_HEIGHT, CHUNK_SECTION_HEIGHT)
         chunkSections = (0 until noSections).map { ChunkSection() }.toList()
+    }
+
+    constructor(chunkSections: List<ChunkSection>, heightmap: ShortArray) {
+        this.chunkSections = chunkSections
+        heightmap.copyInto(this.heightmap)
     }
 
     operator fun set(
@@ -72,6 +79,9 @@ class Chunk {
         val chunkOffset = (y - MIN_HEIGHT) % CHUNK_SECTION_HEIGHT
         return chunkSections[chunkIndex][x, chunkOffset, z]
     }
+
+    fun deepClone(): Chunk =
+        Chunk(chunkSections.map(ChunkSection::deepClone), heightmap)
 
     companion object {
         const val CHUNK_WIDTH = 16

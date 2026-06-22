@@ -13,6 +13,8 @@ sealed interface BitPackedArray {
     ): Int
 
     fun increaseCapacity(bitsPerEntry: UByte)
+
+    abstract fun deepClone(): BitPackedArray
 }
 
 class AlignedBitPackedArray(
@@ -76,6 +78,10 @@ class AlignedBitPackedArray(
 
         packed = newPacked
         this.bitsPerEntry = bitsPerEntry
+    }
+
+    override fun deepClone(): BitPackedArray {
+        return AlignedBitPackedArray(bitsPerEntry, size, packed.clone())
     }
 
     private fun validateIndex(index: Int) {
@@ -241,6 +247,10 @@ class CrossBitPackedArray(
         require(value.toLong() <= ((1L shl bitsPerEntry) - 1L)) {
             "Value $value does not fit in $bitsPerEntry bits."
         }
+    }
+
+    override fun deepClone(): BitPackedArray {
+        return CrossBitPackedArray(bitsPerEntry, size, packed.clone())
     }
 
     companion object {
