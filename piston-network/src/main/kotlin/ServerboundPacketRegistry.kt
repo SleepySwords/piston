@@ -6,6 +6,7 @@ import dev.sleepyswords.piston.network.handler.configuration.handleFinishConfigu
 import dev.sleepyswords.piston.network.handler.handshake.handleHandshakePacket
 import dev.sleepyswords.piston.network.handler.login.handleLoginStartPacket
 import dev.sleepyswords.piston.network.handler.login.handleLoginSuccessPacket
+import dev.sleepyswords.piston.network.handler.play.handlePlayerActionPacket
 import dev.sleepyswords.piston.network.handler.status.handlePingPacket
 import dev.sleepyswords.piston.network.handler.status.handleStatusRequestPacket
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
@@ -16,6 +17,7 @@ import dev.sleepyswords.piston.network.packet.serverbound.handshake.HandshakePac
 import dev.sleepyswords.piston.network.packet.serverbound.login.ConfirmTeleportationPacket
 import dev.sleepyswords.piston.network.packet.serverbound.login.LoginStartPacket
 import dev.sleepyswords.piston.network.packet.serverbound.login.LoginSuccessServerboundPacket
+import dev.sleepyswords.piston.network.packet.serverbound.play.PlayerActionPacket
 import dev.sleepyswords.piston.network.packet.serverbound.status.PingPacket
 import dev.sleepyswords.piston.network.packet.serverbound.status.StatusRequestPacket
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -123,6 +125,8 @@ object ServerboundPacketRegistryCommon : ServerboundPacketRegistry() {
 
         register(GameState.PLAY, 0x00, ConfirmTeleportationPacket.Decoder, ::handlePrintPacket)
         register(GameState.PLAY, 0x02, BundleItemSelectedPacket.Decoder, ::handlePrintPacket)
+
+        register(GameState.PLAY, 0x28, PlayerActionPacket.DECODER, ::handlePlayerActionPacket)
     }
 }
 

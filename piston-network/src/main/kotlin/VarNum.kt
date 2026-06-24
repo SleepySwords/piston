@@ -146,6 +146,14 @@ object VarNum {
 
     fun Source.readVarInt(): Int = readVarInt(::readByte)
 
+    fun Source.readPosition(): BlockVertex {
+        val position = readLong()
+        val x = position shr 38
+        val y = position shl 52 shr 52
+        val z = position shl 26 shr 38
+        return BlockVertex(x.toInt(), y.toShort(), z.toInt())
+    }
+
     fun Source.readMCString(): String {
         val length = readVarInt()
         return readString(length.toLong())

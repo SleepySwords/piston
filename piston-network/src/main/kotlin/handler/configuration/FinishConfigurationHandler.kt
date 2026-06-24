@@ -2,6 +2,7 @@ package dev.sleepyswords.piston.network.handler.configuration
 
 import dev.sleepyswords.piston.event.Event
 import dev.sleepyswords.piston.event.EventBus
+import dev.sleepyswords.piston.event.world.RequestChunkEvent
 import dev.sleepyswords.piston.network.GameSession
 import dev.sleepyswords.piston.network.GameState
 import dev.sleepyswords.piston.network.packet.clientbound.play.ChunkDataAndUpdateLightPacket
@@ -17,6 +18,9 @@ import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigu
 import dev.sleepyswords.piston.utility.ChunkVertex
 import dev.sleepyswords.piston.world.Chunk
 import dev.sleepyswords.piston.world.NoiseGenerator3D
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.selects.select
 import kotlin.uuid.Uuid
 
 object PreGeneratedChunks {
@@ -85,14 +89,29 @@ suspend fun handleFinishConfigurationPacket(
         ),
     )
 
+    val requests = mutableListOf<Pair<ChunkVertex, CompletableDeferred<Chunk>>>()
+
+    // Instead of constantly requesting chunks, we need to perform snapshots and incrementally update them
     for (x in -5 until 5) {
         for (z in -5 until 5) {
-            session.writeServerPacket(
-                ChunkDataAndUpdateLightPacket(
-                    chunkVertex = ChunkVertex(x, z),
-                    chunk = PreGeneratedChunks[ChunkVertex(x, z)]
-                ),
+            val position = ChunkVertex(x, z)
+            val channel = CompletableDeferred<Chunk>()
+
+            requests.add(position to channel)
+
+            eventBus.emitServerBound(
+                RequestChunkEvent(position, channel)
             )
         }
     }
-}
+
+    for ((position, channel) in requests) {
+        val chunk = channel.await()
+
+        session.writeServerPacket(
+            ChunkDataAndUpdateLightPacket(
+                chunkVertex = position,
+                chunk = chunk
+            )
+        )
+    }}

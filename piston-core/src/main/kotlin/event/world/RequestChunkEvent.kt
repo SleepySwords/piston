@@ -3,12 +3,9 @@ package dev.sleepyswords.piston.event.world
 import dev.sleepyswords.piston.event.Event
 import dev.sleepyswords.piston.utility.ChunkVertex
 import dev.sleepyswords.piston.world.Chunk
+import kotlinx.coroutines.CompletableDeferred
 
 data class RequestChunkEvent(
     val chunkPosition: ChunkVertex,
-) : Event
-
-data class ResponseChunkEvent(
-    val chunkPosition: ChunkVertex,
-    val chunk: Chunk,
+    val completableDeferred: CompletableDeferred<Chunk>,
 ) : Event
