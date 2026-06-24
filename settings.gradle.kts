@@ -24,5 +24,6 @@ include(":piston-core")
 include(":piston-nbt")
 include(":piston-network")
 include(":piston-noise")
+include(":piston-default")
 
 rootProject.name = "piston"

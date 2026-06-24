@@ -19,8 +19,6 @@ import dev.sleepyswords.piston.utility.ChunkVertex
 import dev.sleepyswords.piston.world.Chunk
 import dev.sleepyswords.piston.world.NoiseGenerator3D
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.selects.select
 import kotlin.uuid.Uuid
 
 object PreGeneratedChunks {
