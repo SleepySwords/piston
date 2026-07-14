@@ -1,7 +1,7 @@
 package dev.sleepyswords.piston.network.handler.configuration
 
-import dev.sleepyswords.piston.event.Event
 import dev.sleepyswords.piston.event.EventBus
+import dev.sleepyswords.piston.event.PlayerLoginEvent
 import dev.sleepyswords.piston.event.world.RequestChunkEvent
 import dev.sleepyswords.piston.network.GameSession
 import dev.sleepyswords.piston.network.GameState
@@ -33,8 +33,6 @@ object PreGeneratedChunks {
         return map[chunkVertex]!!
     }
 }
-
-data class PlayerLoginEvent(val playerName: String, val uuid: Uuid): Event
 
 suspend fun handleFinishConfigurationPacket(
     packet: FinishConfigurationPacket,

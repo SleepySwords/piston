@@ -4,6 +4,7 @@ plugins {
     id("buildsrc.convention.kotlin-jvm")
     // Apply Kotlin Serialization plugin from `gradle/libs.versions.toml`.
     alias(libs.plugins.kotlinPluginSerialization)
+    kotlin("jvm")
 }
 
 dependencies {
@@ -12,4 +13,11 @@ dependencies {
     testImplementation(kotlin("test"))
 
     implementation("io.ktor:ktor-network:3.4.2")
+    implementation(kotlin("stdlib-jdk8"))
+}
+repositories {
+    mavenCentral()
+}
+kotlin {
+    jvmToolchain(25)
 }

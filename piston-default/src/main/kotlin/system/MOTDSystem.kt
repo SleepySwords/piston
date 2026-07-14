@@ -1,9 +1,8 @@
-package dev.sleepyswords.piston
+package dev.sleepyswords.piston.system
 
+import dev.sleepyswords.piston.event.ChatMessageEvent
 import dev.sleepyswords.piston.event.EventBuffer
-import dev.sleepyswords.piston.network.ChatMessageEvent
-import dev.sleepyswords.piston.network.handler.configuration.PlayerLoginEvent
-import dev.sleepyswords.piston.system.System
+import dev.sleepyswords.piston.event.PlayerLoginEvent
 import kotlin.uuid.ExperimentalUuidApi
 
 class MOTDSystem: System {

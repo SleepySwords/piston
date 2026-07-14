@@ -4,12 +4,14 @@ plugins {
     id("buildsrc.convention.kotlin-jvm")
     // Apply Kotlin Serialization plugin from `gradle/libs.versions.toml`.
     alias(libs.plugins.kotlinPluginSerialization)
+    kotlin("jvm")
 }
 
 kotlin {
     compilerOptions {
         freeCompilerArgs.add("-opt-in=kotlin.uuid.ExperimentalUuidApi")
     }
+    jvmToolchain(25)
 }
 
 dependencies {
@@ -19,8 +21,13 @@ dependencies {
 
     implementation(project(":piston-nbt"))
     implementation(project(":piston-core"))
+    implementation(project(":piston-default"))
 
     implementation("io.ktor:ktor-network:3.4.2")
     implementation("ch.qos.logback:logback-classic:1.5.32")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation(kotlin("stdlib-jdk8"))
+}
+repositories {
+    mavenCentral()
 }

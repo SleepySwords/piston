@@ -5,6 +5,7 @@ plugins {
 
     // Apply the Application plugin to add support for building an executable JVM application.
     application
+    kotlin("jvm")
 }
 
 dependencies {
@@ -13,10 +14,17 @@ dependencies {
     implementation(project(":piston-network"))
     implementation(project(":piston-default"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 application {
     // Define the Fully Qualified Name for the application main class
     // (Note that Kotlin compiles `App.kt` to a class with FQN `com.example.app.AppKt`.)
     mainClass = "dev.sleepyswords.piston.PistonKt"
+}
+repositories {
+    mavenCentral()
+}
+kotlin {
+    jvmToolchain(25)
 }

@@ -2,7 +2,7 @@ package dev.sleepyswords.piston.network
 
 import dev.sleepyswords.nbt.compoundTag
 import dev.sleepyswords.nbt.stringTag
-import dev.sleepyswords.piston.event.Event
+import dev.sleepyswords.piston.event.ChatMessageEvent
 import dev.sleepyswords.piston.event.EventBus
 import dev.sleepyswords.piston.network.packet.clientbound.play.SystemChatMessage
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -11,7 +11,6 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
@@ -19,10 +18,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.io.EOFException
-import kotlin.uuid.Uuid
 
 private val logger = KotlinLogging.logger {}
-data class ChatMessageEvent(val message: String, val player: Uuid): Event
 
 class NetworkManager {
     suspend fun launchTCPServer(

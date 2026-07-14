@@ -4,6 +4,7 @@ plugins {
     id("buildsrc.convention.kotlin-jvm")
     // Apply Kotlin Serialization plugin from `gradle/libs.versions.toml`.
     alias(libs.plugins.kotlinPluginSerialization)
+    kotlin("jvm")
 }
 
 dependencies {
@@ -11,5 +12,12 @@ dependencies {
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(project(":piston-noise"))
     testImplementation(kotlin("test"))
+    implementation(kotlin("stdlib-jdk8"))
 
+}
+repositories {
+    mavenCentral()
+}
+kotlin {
+    jvmToolchain(25)
 }
