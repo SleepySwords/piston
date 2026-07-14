@@ -14,12 +14,10 @@ class World(
     }
 
     operator fun get(blockVertex: BlockVertex): BlockState {
-        val (x,y,z) = blockVertex
-        return get(blockVertex.toChunkVertex())[x.mod(Chunk.CHUNK_WIDTH), y, z.mod(Chunk.CHUNK_LENGTH)]
+        return get(blockVertex.toChunkVertex())[blockVertex.toChunkOffset()]
     }
 
     operator fun set(blockVertex: BlockVertex, blockState: BlockState) {
-        val (x,y,z) = blockVertex
-        get(blockVertex.toChunkVertex())[x.mod(Chunk.CHUNK_WIDTH), y, z.mod(Chunk.CHUNK_LENGTH)] = blockState
+        get(blockVertex.toChunkVertex())[blockVertex.toChunkOffset()] = blockState
     }
 }

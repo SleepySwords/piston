@@ -101,9 +101,9 @@ object VarNum {
     fun Sink.writeBlockVertex(position: BlockVertex) {
         var internal = position.x.toLong()
         internal = internal shl 26
-        internal = internal or (position.z.toLong() and (1L shl 27) - 1)
-        internal = internal shl 26
-        internal = internal or (position.y.toLong() and (1L shl 13) - 1)
+        internal = internal or (position.z.toLong() and ((1L shl 26) - 1))
+        internal = internal shl 12
+        internal = internal or (position.y.toLong() and ((1L shl 12) - 1))
 
         writeLong(internal)
     }

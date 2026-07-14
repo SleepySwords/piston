@@ -18,11 +18,7 @@ class Stone(blockID: Int, blocks: List<BlockState>) : BlockDefinition(blockID, b
     override val isAir: Boolean = false
 }
 
-class StoneState(blockDefinition: BlockDefinition, stateID: Int): BlockState(blockDefinition, stateID) {
-    override fun getPhysicalBlockState(): BlockState {
-        return BlockRegistry.defaultBlockState<GrassState>()
-    }
-}
+class StoneState(blockDefinition: BlockDefinition, stateID: Int): BlockState(blockDefinition, stateID)
 
 
 class Grass(blockID: Int, blocks: List<BlockState>) : BlockDefinition(blockID, blocks) {

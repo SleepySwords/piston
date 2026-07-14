@@ -10,4 +10,5 @@ data class BlockVertex(
     fun getIndex(): Int = x + z * 16 + y * 16 * 16
 
     fun toChunkVertex(): ChunkVertex = ChunkVertex(x.floorDiv(Chunk.CHUNK_WIDTH), z.floorDiv(Chunk.CHUNK_LENGTH))
+    fun toChunkOffset(): BlockVertex = BlockVertex(x.mod(Chunk.CHUNK_WIDTH), y, z.mod(Chunk.CHUNK_LENGTH))
 }

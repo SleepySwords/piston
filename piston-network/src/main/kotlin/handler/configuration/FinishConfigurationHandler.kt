@@ -2,9 +2,9 @@ package dev.sleepyswords.piston.network.handler.configuration
 
 import dev.sleepyswords.piston.event.EventBus
 import dev.sleepyswords.piston.event.PlayerLoginEvent
-import dev.sleepyswords.piston.event.world.RequestChunkEvent
 import dev.sleepyswords.piston.network.GameSession
 import dev.sleepyswords.piston.network.GameState
+import dev.sleepyswords.piston.network.chunkCache
 import dev.sleepyswords.piston.network.packet.clientbound.play.ChunkDataAndUpdateLightPacket
 import dev.sleepyswords.piston.network.packet.clientbound.play.GameEvent
 import dev.sleepyswords.piston.network.packet.clientbound.play.GameEventPacket
@@ -16,23 +16,6 @@ import dev.sleepyswords.piston.network.packet.clientbound.play.SynchronizePlayer
 import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
 import dev.sleepyswords.piston.utility.ChunkVertex
-import dev.sleepyswords.piston.world.Chunk
-import dev.sleepyswords.piston.world.NoiseGenerator3D
-import kotlinx.coroutines.CompletableDeferred
-import kotlin.uuid.Uuid
-
-object PreGeneratedChunks {
-    val map: MutableMap<ChunkVertex, Chunk> = mutableMapOf()
-
-    operator fun get(chunkVertex: ChunkVertex): Chunk {
-        if (map.containsKey(chunkVertex)) {
-            return map[chunkVertex]!!
-        }
-
-        map[chunkVertex] = NoiseGenerator3D().generateChunk(chunkVertex)
-        return map[chunkVertex]!!
-    }
-}
 
 suspend fun handleFinishConfigurationPacket(
     packet: FinishConfigurationPacket,
@@ -55,7 +38,7 @@ suspend fun handleFinishConfigurationPacket(
             dimensionType = 0,
             dimensionName = "ok",
             hashedSeed = 0,
-            gameMode = GameMode.CREATIVE,
+            gameMode = GameMode.SURVIVAL,
             previousGameMode = null,
             isDebug = false,
             isFlat = false,
@@ -85,29 +68,18 @@ suspend fun handleFinishConfigurationPacket(
         ),
     )
 
-    val requests = mutableListOf<Pair<ChunkVertex, CompletableDeferred<Chunk>>>()
-
     // Instead of constantly requesting chunks, we need to perform snapshots and incrementally update them
     for (x in -5 until 5) {
         for (z in -5 until 5) {
             val position = ChunkVertex(x, z)
-            val channel = CompletableDeferred<Chunk>()
-
-            requests.add(position to channel)
-
-            eventBus.emitServerBound(
-                RequestChunkEvent(position, channel)
+            // TODO: For now we are constantly awaiting, more likely we need to add a bulk request like before.
+            val chunk = chunkCache.getCached(eventBus, position)
+            session.writeServerPacket(
+                ChunkDataAndUpdateLightPacket(
+                    chunkVertex = position,
+                    chunk = chunk
+                )
             )
         }
     }
-
-    for ((position, channel) in requests) {
-        val chunk = channel.await()
-
-        session.writeServerPacket(
-            ChunkDataAndUpdateLightPacket(
-                chunkVertex = position,
-                chunk = chunk
-            )
-        )
-    }}
+}

@@ -24,6 +24,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.io.IOException
 import kotlinx.io.Source
 import kotlin.arrayOfNulls
 import kotlin.uuid.Uuid
@@ -50,7 +51,11 @@ data class GameSession(
     suspend fun writeServerPacket(packet: ClientboundPacket) {
         writeLock.withLock {
             logger.info { "Writing server packet $packet" }
-            writeChannel.writeServerPacket(packet)
+            try {
+                writeChannel.writeServerPacket(packet)
+            } catch (io: IOException) {
+                println("Client disconnected")
+            }
         }
     }
 }
