@@ -1,12 +1,8 @@
 package dev.sleepyswords.piston.world
 
 import dev.sleepyswords.piston.block.Air
-import dev.sleepyswords.piston.block.AirState
-import dev.sleepyswords.piston.block.Block
-import dev.sleepyswords.piston.block.BlockRegistry
 import dev.sleepyswords.piston.block.BlockState
 import dev.sleepyswords.piston.block.Stone
-import dev.sleepyswords.piston.block.StoneState
 import dev.sleepyswords.piston.noise.Noise
 import dev.sleepyswords.piston.utility.BlockVertex
 import dev.sleepyswords.piston.utility.ChunkVertex
@@ -33,13 +29,12 @@ interface ChunkGenerator {
 class TestChunkGenerator : ChunkGenerator {
     override fun generateBlock(blockVertex: BlockVertex): BlockState {
         if (blockVertex.x == 10 && blockVertex.z == 10) {
-            BlockRegistry.defaultBlockState<StoneState>()
+            Stone.DEFAULT_STATE
         }
         return if (blockVertex.y <= 10 && blockVertex.x != 10 && blockVertex.z != 10) {
-            BlockRegistry.defaultBlockState<StoneState>()
+            Stone.DEFAULT_STATE
         } else {
-            BlockRegistry.defaultBlockState<AirState>()
-
+            Air.DEFAULT_STATE
         }
     }
 }
@@ -61,9 +56,9 @@ class NoiseGenerator : ChunkGenerator {
             )
 
         return if (blockVertex.y < (noise * 64 + 90).toInt()) {
-            BlockRegistry.defaultBlockState<StoneState>()
+            Stone.DEFAULT_STATE
         } else {
-            BlockRegistry.defaultBlockState<AirState>()
+            Air.DEFAULT_STATE
         }
     }
 }
@@ -80,9 +75,9 @@ class NoiseGenerator3D : ChunkGenerator {
             )
 
         return if (0.0 < noise) {
-            BlockRegistry.defaultBlockState<StoneState>()
+            Stone.DEFAULT_STATE
         } else {
-            BlockRegistry.defaultBlockState<AirState>()
+            Air.DEFAULT_STATE
         }
     }
 }

@@ -89,6 +89,24 @@ interface Snowy<T> : IBlockState {
     }
 }
 
+class RedstoneSiderProperty(override val name: String) : Property<RedstoneSider> {
+    override fun index(value: RedstoneSider): Int {
+        return value.ordinal
+    }
+    override fun get(index: Int): RedstoneSider {
+        return RedstoneSider.entries[index]
+    }
+
+    override val values: List<RedstoneSider> = RedstoneSider.entries.toList()
+
+    override val size: Int = RedstoneSider.entries.size
+}
+
+
+enum class RedstoneSider {
+    UP, SIDE, NONE
+}
+
 class DirectionProperty(override val name: String) : Property<Direction> {
     override fun index(value: Direction): Int {
         return value.ordinal
@@ -116,6 +134,52 @@ interface DirectionState<T> : IBlockState {
     }
 }
 
+interface RedstoneSide<T> : IBlockState {
+    fun getNorth(): RedstoneSider = get(property = NORTH_DIRECTION)!!
+
+    fun withNorth(value: RedstoneSider): T = with(property = NORTH_DIRECTION, value) as T
+
+    fun getSouth(): RedstoneSider = get(property = SOUTH_DIRECTION)!!
+
+    fun withSouth(value: RedstoneSider): T = with(property = SOUTH_DIRECTION, value) as T
+
+    fun getEast(): RedstoneSider = get(property = EAST_DIRECTION)!!
+
+    fun withEast(value: RedstoneSider): T = with(property = EAST_DIRECTION, value) as T
+
+    fun getWest(): RedstoneSider = get(property = WEST_DIRECTION)!!
+
+    fun withWest(value: RedstoneSider): T = with(property = WEST_DIRECTION, value) as T
+
+    companion object {
+        val NORTH_DIRECTION: Property<RedstoneSider> = RedstoneSiderProperty("NORTH")
+        val SOUTH_DIRECTION: Property<RedstoneSider> = RedstoneSiderProperty("SOUTH")
+        val EAST_DIRECTION: Property<RedstoneSider> = RedstoneSiderProperty("EAST")
+        val WEST_DIRECTION: Property<RedstoneSider> = RedstoneSiderProperty("WEST")
+    }
+}
+
+interface RedstonePower<T> : IBlockState {
+    fun getPower(): Byte = get(POWER)!!
+
+    fun withPower(value: Byte) = with(POWER, value)
+
+    companion object {
+        val POWER: Property<Byte> = RedstonePowerProperty("REDSTONE")
+    }
+}
+
+class RedstonePowerProperty(override val name: String) : Property<Byte> {
+    override fun index(value: Byte): Int {
+        return value.toInt()
+    }
+    override fun get(index: Int): Byte {
+        return index.toByte()
+    }
+
+    override val values: List<Byte> = (0 until 16).map(Int::toByte)
+    override val size: Int = values.size
+}
 class GrassState(definition: BlockDefinition, stateID: Int) :
     BlockState(definition, stateID), Snowy<GrassState>, DirectionState<GrassState> {
     companion object Properties {
@@ -127,7 +191,7 @@ class GrassState(definition: BlockDefinition, stateID: Int) :
 }
 
 fun main() {
-    var grassState = BlockRegistry.defaultBlockState<GrassState>()
+    var grassState = Grass.DEFAULT_STATE
 
     println(grassState.getDirection())
     println(grassState.getSnowy())

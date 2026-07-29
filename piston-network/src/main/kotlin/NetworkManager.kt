@@ -2,9 +2,11 @@ package dev.sleepyswords.piston.network
 
 import dev.sleepyswords.nbt.compoundTag
 import dev.sleepyswords.nbt.stringTag
+import dev.sleepyswords.piston.event.BroadcastEvent
 import dev.sleepyswords.piston.event.ChatMessageEvent
 import dev.sleepyswords.piston.event.EventBus
 import dev.sleepyswords.piston.event.block.BlockUpdateEvent
+import dev.sleepyswords.piston.network.dev.sleepyswords.piston.network.packet.common.play.KeepAlivePacket
 import dev.sleepyswords.piston.network.packet.clientbound.play.BlockUpdatePacket
 import dev.sleepyswords.piston.network.packet.clientbound.play.SystemChatMessage
 import dev.sleepyswords.piston.utility.ChunkVertex
@@ -15,11 +17,15 @@ import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.io.EOFException
+import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -52,17 +58,43 @@ class NetworkManager {
 
         coroutineScope {
             this.launch {
+                while (true) {
+                    delay(15.seconds)
+                    // FIXME: we need to check response times as well
+                    sessionMutex.withLock {
+                        for (session in sessions) {
+                            session.writeServerPacket(KeepAlivePacket(Random.nextLong()))
+                        }
+                    }
+                }
+            }
+            this.launch {
                 for (event in eventBus.clientBoundEvents) {
                     println(event)
                     if (event is ChatMessageEvent) {
                         sessionMutex.withLock {
                             val session = sessions.find { it.uuid == event.player }
-                            session?.writeServerPacket(SystemChatMessage(
-                                content = compoundTag {
-                                    "text" - stringTag(event.message)
-                                },
-                                overlay = false
-                            ))
+                            session?.writeServerPacket(
+                                SystemChatMessage(
+                                    content = compoundTag {
+                                        "text" - stringTag(event.message)
+                                    },
+                                    overlay = false
+                                )
+                            )
+                        }
+                    } else if (event is BroadcastEvent) {
+                        sessionMutex.withLock {
+                            sessions.forEach {
+                                it.writeServerPacket(
+                                    SystemChatMessage(
+                                        content = compoundTag {
+                                            "text" - stringTag(event.message)
+                                        },
+                                        overlay = false
+                                    )
+                                )
+                            }
                         }
                     } else if (event is BlockUpdateEvent) {
                         chunkCache.applyUpdate(event)

@@ -7,6 +7,7 @@ import dev.sleepyswords.piston.network.handler.handshake.handleHandshakePacket
 import dev.sleepyswords.piston.network.handler.login.handleLoginStartPacket
 import dev.sleepyswords.piston.network.handler.login.handleLoginSuccessPacket
 import dev.sleepyswords.piston.network.handler.play.handlePlayerActionPacket
+import dev.sleepyswords.piston.network.handler.play.handleUseItemOnPacket
 import dev.sleepyswords.piston.network.handler.status.handlePingPacket
 import dev.sleepyswords.piston.network.handler.status.handleStatusRequestPacket
 import dev.sleepyswords.piston.network.packet.common.configuration.FinishConfigurationPacket
@@ -18,6 +19,7 @@ import dev.sleepyswords.piston.network.packet.serverbound.login.ConfirmTeleporta
 import dev.sleepyswords.piston.network.packet.serverbound.login.LoginStartPacket
 import dev.sleepyswords.piston.network.packet.serverbound.login.LoginSuccessServerboundPacket
 import dev.sleepyswords.piston.network.packet.serverbound.play.PlayerActionPacket
+import dev.sleepyswords.piston.network.packet.serverbound.play.UseItemOnPacket
 import dev.sleepyswords.piston.network.packet.serverbound.status.PingPacket
 import dev.sleepyswords.piston.network.packet.serverbound.status.StatusRequestPacket
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -74,7 +76,7 @@ open class ServerboundPacketRegistry {
     ) {
         registry[gameState.id][opcode] = { source, session, eventBus ->
             val packet = decoder.decode(source)
-            logger.debug { "Received packet $packet" }
+//            logger.debug { "Received packet $packet" }
             handler(packet, session, eventBus)
         }
     }
@@ -87,7 +89,7 @@ open class ServerboundPacketRegistry {
     ) {
         registry[gameState.id][opcode] = { source, session, eventBus ->
             val packet = decoder.decode(source)
-            logger.debug { "Received packet $packet" }
+//            logger.debug { "Received packet $packet" }
             handler(packet, session)
         }
     }
@@ -100,7 +102,7 @@ open class ServerboundPacketRegistry {
     ) {
         val handler = registry[gameSession.gameState.id][opcode]
         if (handler == null) {
-//            logger.error { "Received unknown opcode $opcode from ${gameSession.gameState}" }
+            logger.error { "Received unknown opcode $opcode from ${gameSession.gameState}" }
             return
         }
         handler(source, gameSession, eventBus)
@@ -131,7 +133,9 @@ object ServerboundPacketRegistryCommon : ServerboundPacketRegistry() {
         register(GameState.PLAY, 0x00, ConfirmTeleportationPacket.Decoder, ::handlePrintPacket)
         register(GameState.PLAY, 0x02, BundleItemSelectedPacket.Decoder, ::handlePrintPacket)
 
-        register(GameState.PLAY, 0x28, PlayerActionPacket.DECODER, ::handlePlayerActionPacket)
+        register(GameState.PLAY, 0x3F, UseItemOnPacket.Decoder, ::handleUseItemOnPacket)
+
+        register(GameState.PLAY, 0x28, PlayerActionPacket.Decoder, ::handlePlayerActionPacket)
     }
 }
 

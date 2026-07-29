@@ -23,7 +23,7 @@ data class PlayerActionPacket(
     }
 
     companion object {
-        val DECODER: ClientPacketDecoder<PlayerActionPacket> = { buffer ->
+        val Decoder: ClientPacketDecoder<PlayerActionPacket> = { buffer ->
             PlayerActionPacket(
                 status = PlayerActionStatus.entries[buffer.readVarInt()],
                 location = buffer.readPosition(),

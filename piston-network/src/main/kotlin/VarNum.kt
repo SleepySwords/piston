@@ -1,5 +1,7 @@
 package dev.sleepyswords.piston.network
 
+import dev.sleepyswords.piston.block.Face
+import dev.sleepyswords.piston.entity.Hand
 import dev.sleepyswords.piston.network.packet.clientbound.play.Position
 import dev.sleepyswords.piston.network.packet.clientbound.play.Rotation
 import dev.sleepyswords.piston.network.packet.clientbound.play.Velocity
@@ -152,6 +154,25 @@ object VarNum {
         val y = position shl 52 shr 52
         val z = position shl 26 shr 38
         return BlockVertex(x.toInt(), y.toShort(), z.toInt())
+    }
+
+    fun Source.readHand(): Hand {
+        val hand = readVarInt()
+        return if (hand == 0) Hand.MAIN_HAND else Hand.OFF_HAND
+    }
+
+    fun Source.readFace(): Face {
+        val hand = readVarInt()
+        return when (hand) {
+            0 -> Face.BOTTOM
+            1 -> Face.TOP
+            2 -> Face.NORTH
+            3 -> Face.SOUTH
+            4 -> Face.WEST
+            5 -> Face.EAST
+            // Should issue a disconnect rather than invalid face hand
+            else -> throw RuntimeException("Invalid face hand")
+        }
     }
 
     fun Source.readMCString(): String {

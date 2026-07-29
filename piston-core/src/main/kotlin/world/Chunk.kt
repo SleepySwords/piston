@@ -1,6 +1,7 @@
 package dev.sleepyswords.piston.world
 
 import dev.sleepyswords.piston.Utility
+import dev.sleepyswords.piston.block.Air
 import dev.sleepyswords.piston.block.AirState
 import dev.sleepyswords.piston.block.BlockRegistry
 import dev.sleepyswords.piston.block.BlockState
@@ -10,7 +11,7 @@ class ChunkSection(
     val blockPalette: Palette<BlockState>,
     var blockCount: Short,
 ) {
-    constructor() : this(Palette(BlockRegistry.defaultBlockState<AirState>()), 0)
+    constructor() : this(Palette(Air.DEFAULT_STATE), 0)
 
     operator fun set(
         x: Int,

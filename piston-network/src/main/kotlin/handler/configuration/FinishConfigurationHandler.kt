@@ -38,7 +38,7 @@ suspend fun handleFinishConfigurationPacket(
             dimensionType = 0,
             dimensionName = "ok",
             hashedSeed = 0,
-            gameMode = GameMode.SURVIVAL,
+            gameMode = GameMode.CREATIVE,
             previousGameMode = null,
             isDebug = false,
             isFlat = false,
