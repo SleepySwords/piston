@@ -1,7 +1,9 @@
 package dev.sleepyswords.piston
 
 import dev.sleepyswords.piston.event.EventBuffer
+import dev.sleepyswords.piston.event.EventBus
 import dev.sleepyswords.piston.network.TCPSystem
+import dev.sleepyswords.piston.network.registerTCP
 import dev.sleepyswords.piston.system.ChunkManagementSystem
 import dev.sleepyswords.piston.system.MOTDSystem
 import dev.sleepyswords.piston.system.RedstonePlacementSystem
@@ -29,7 +31,7 @@ fun main() =
             generator = NoiseGenerator3D(),
         )
 
-        scheduler.register(system = TCPSystem())
+        registerTCP(scheduler)
         scheduler.register(system = MOTDSystem())
         scheduler.register(system = ChunkManagementSystem(world))
         scheduler.register(system = RedstonePlacementSystem(world))

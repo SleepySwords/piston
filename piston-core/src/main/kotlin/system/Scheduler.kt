@@ -77,25 +77,16 @@ class Scheduler {
             system.start()
         }
 
-        while (true) {
-            tick()
-        }
-    }
-
-    suspend fun tick() {
         val clock = TimeSource.Monotonic
         var ticks = 0
         var currentTime = clock.markNow()
         while (true) {
-            for (system in systems) {
+            for (system in order) {
                 system.update(eventBuffer)
             }
 
-            val postEvents = eventBuffer.drainAll()
-
-            for (system in systems) {
-                system.postUpdate(postEvents)
-            }
+            // Remove all current events
+            eventBuffer.drainAll()
 
             delay(10.milliseconds)
 

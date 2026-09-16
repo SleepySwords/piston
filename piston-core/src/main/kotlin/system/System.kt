@@ -1,14 +1,11 @@
 package dev.sleepyswords.piston.system
 
-import dev.sleepyswords.piston.event.Event
 import dev.sleepyswords.piston.event.EventBuffer
 
 interface System {
-    fun start()
+    fun start() {}
 
-    fun update(eventBuffer: EventBuffer)
-
-    fun postUpdate(events: List<Event>) {}
+    fun update(eventBuffer: EventBuffer) {}
 
     val runBefore: Set<Phase>
         get() = setOf()

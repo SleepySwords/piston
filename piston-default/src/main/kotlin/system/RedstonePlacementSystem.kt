@@ -19,7 +19,7 @@ class RedstonePlacementSystem(
 
     override fun start() {}
 
-    override val runBefore: Set<Phase>
+    override val runAfter: Set<Phase>
         get() = setOf(ChunkManagementSystem.UPDATE_BLOCK)
 
     override val runIn: Set<Phase>
