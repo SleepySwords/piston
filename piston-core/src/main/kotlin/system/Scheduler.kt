@@ -18,6 +18,9 @@ class Scheduler {
         systems.add(system)
     }
 
+    fun dependencyRequired(x: Set<Phase>, y: Set<Phase>) =
+        x.intersect(y).isNotEmpty()
+
     private fun buildDependencyGraph(): List<System> {
         val graph = mutableMapOf<System, MutableSet<System>>()
         val inDegree = mutableMapOf<System, Int>()
@@ -27,11 +30,15 @@ class Scheduler {
             inDegree[system] = 0
         }
 
-        for (before in systems) {
-            for (after in systems) {
-                if (before != after && before.runBefore.intersect(after.runAfter).isNotEmpty()) {
-                    graph[before]!!.add(after)
-                    inDegree[after] = inDegree[after]!! + 1
+        for (x in systems) {
+            for (y in systems) {
+                if (x != y &&
+                    (dependencyRequired(x.runBefore, y.runAfter) ||
+                            dependencyRequired(x.runBefore, y.runIn) ||
+                            dependencyRequired(x.runIn, y.runAfter))
+                ) {
+                    graph[x]!!.add(y)
+                    inDegree[y] = inDegree[y]!! + 1
                 }
             }
         }

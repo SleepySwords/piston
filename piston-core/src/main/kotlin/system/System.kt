@@ -10,9 +10,12 @@ interface System {
 
     fun postUpdate(events: List<Event>) {}
 
-    val runBefore: Set<Checkpoint>
+    val runBefore: Set<Phase>
         get() = setOf()
 
-    val runAfter: Set<Checkpoint>
+    val runAfter: Set<Phase>
+        get() = setOf()
+
+    val runIn: Set<Phase>
         get() = setOf()
 }

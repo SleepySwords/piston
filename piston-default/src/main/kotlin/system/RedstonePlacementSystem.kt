@@ -19,8 +19,11 @@ class RedstonePlacementSystem(
 
     override fun start() {}
 
-    override val runBefore: Set<Checkpoint>
-        get() = setOf(PistonDefault.GAME_TICK_END, ChunkManagementSystem.UPDATE_BLOCK)
+    override val runBefore: Set<Phase>
+        get() = setOf(ChunkManagementSystem.UPDATE_BLOCK)
+
+    override val runIn: Set<Phase>
+        get() = setOf(PistonDefault.GAME_TICK)
 
     override fun update(eventBuffer: EventBuffer) {
         val blockUpdates = eventBuffer.drain<BlockUpdateEvent>()

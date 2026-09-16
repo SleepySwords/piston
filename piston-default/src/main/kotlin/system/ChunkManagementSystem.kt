@@ -16,11 +16,8 @@ class ChunkManagementSystem(
 ) : System {
     override fun start() {}
 
-    override val runAfter: Set<Checkpoint>
-        get() = setOf(UPDATE_BLOCK, PistonDefault.GAME_TICK_START)
-
-    override val runBefore: Set<Checkpoint>
-        get() = setOf(PistonDefault.GAME_TICK_END)
+    override val runIn: Set<Phase>
+        get() = setOf(PistonDefault.GAME_TICK, UPDATE_BLOCK)
 
     override fun update(eventBuffer: EventBuffer) {
         val placeEvents = eventBuffer.drain<UseItemOnEvent>()
