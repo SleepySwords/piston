@@ -51,7 +51,7 @@ fun main() =
                 system.postUpdate(postEvents)
             }
 
-            delay(10.milliseconds)
+//            delay(10.milliseconds)
 
             ticks += 1
             if (currentTime.elapsedNow() >= 1.seconds) {

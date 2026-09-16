@@ -15,7 +15,7 @@ interface ChunkGenerator {
 
         for (x in 0 until 16) {
             for (z in 0 until 16) {
-                for (y in Chunk.MIN_HEIGHT until Chunk.CHUNK_HEIGHT + Chunk.MIN_HEIGHT) {
+                for (y in Chunk.MIN_HEIGHT until Chunk.CHUNK_HEIGHT + Chunk.MIN_HEIGHT - 30) {
                     val vertex = BlockVertex(x + chunkVertex.x * Chunk.CHUNK_WIDTH, y.toShort(), z + chunkVertex.z * Chunk.CHUNK_LENGTH)
                     chunk[x, y.toShort(), z] = generateBlock(vertex)
                 }

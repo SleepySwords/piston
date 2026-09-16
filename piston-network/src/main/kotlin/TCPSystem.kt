@@ -1,9 +1,8 @@
-package dev.sleepyswords.piston
+package dev.sleepyswords.piston.network
 
 import dev.sleepyswords.piston.event.Event
 import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.event.EventBus
-import dev.sleepyswords.piston.network.NetworkManager
 import dev.sleepyswords.piston.system.System
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

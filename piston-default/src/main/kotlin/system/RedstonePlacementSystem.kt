@@ -9,13 +9,12 @@ import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.event.block.BlockUpdateEvent
 import dev.sleepyswords.piston.utility.BlockVertex
 import dev.sleepyswords.piston.world.World
-import kotlin.math.abs
-import kotlin.math.sign
 
-class RedstoneSystem(
+class RedstonePlacementSystem(
     val world: World,
 ) : System {
     private val activePulses = mutableListOf<PlacementPulse>()
+    private val enqueuedPulses = mutableListOf<PlacementPulse>()
 
     override fun start() {}
 
@@ -58,175 +57,57 @@ class RedstoneSystem(
             if (placement in processed) continue
             if (world[placement] !is RedstoneWireState) continue
 
-            val network = collectNetwork(placement)
-            if (network.isEmpty()) continue
-            processed.addAll(network)
-
-            activePulses.removeAll { pulse -> pulse.order.any { it in network } }
-
-            val seeds = network.intersect(newPlacements)
-            val restingPower = network.associateWith { position ->
-                (world[position] as RedstoneWireState).getPower()
-            }
-
-            activePulses.add(
-                PlacementPulse(
-                    order = bfsFromSeeds(seeds, network),
-                    restingPower = restingPower,
-                ),
-            )
+            bfsEnqueue(placement)
         }
     }
 
     private fun tickPulses(eventBuffer: EventBuffer) {
-        val iterator = activePulses.iterator()
-        while (iterator.hasNext()) {
-            val pulse = iterator.next()
-
-            if (pulse.rising) {
-                pulse.frontier = minOf(pulse.frontier + 1, pulse.order.lastIndex)
-                val waveLength = pulse.frontier + 1
-                val stepsRemaining = (pulse.order.size - pulse.frontier).coerceAtLeast(1)
-
-                for (position in pulse.order.take(waveLength)) {
-                    val state = world[position] as? RedstoneWireState ?: continue
-                    val newPower = stepToward(
-                        state.getPower().toInt(),
-                        PULSE_PEAK_POWER.toInt(),
-                        stepsRemaining,
+        val enqueuedIterator = enqueuedPulses.iterator()
+        while (enqueuedIterator.hasNext()) {
+            val pulse = enqueuedIterator.next()
+            if (pulse.offset == 0) {
+                activePulses.add(PlacementPulse(pulse.block, 15))
+                enqueuedIterator.remove()
+            }
+            pulse.offset -= 1
+        }
+        val activeIterator = activePulses.iterator()
+        while (activeIterator.hasNext()) {
+            val pulse = activeIterator.next()
+            pulse.offset -= 1;
+            val block = world[pulse.block]
+            if (block is RedstoneWireState && pulse.offset >= 0) {
+                eventBuffer.emit(
+                    event = BlockUpdateEvent(
+                        newState = block.withPower(
+                            value = pulse.offset.toByte()
+                        ),
+                        position = pulse.block
                     )
-                    if (newPower != state.getPower().toInt()) {
-                        emitWireUpdate(state.withPower(newPower.toByte()) as RedstoneWireState, position, eventBuffer)
-                    }
-                }
-
-                val waveLit = pulse.order.take(waveLength).all { position ->
-                    (world[position] as? RedstoneWireState)?.getPower() == PULSE_PEAK_POWER
-                }
-                if (pulse.frontier >= pulse.order.lastIndex && waveLit) {
-                    pulse.rising = false
-                }
+                )
             } else {
-                var settled = true
-                for (position in pulse.order) {
-                    val state = world[position] as? RedstoneWireState ?: continue
-                    val target = pulse.restingPower[position]?.toInt() ?: 0
-                    val newPower = stepToward(state.getPower().toInt(), target, pulse.order.size)
-                    if (newPower != state.getPower().toInt()) {
-                        settled = false
-                        emitWireUpdate(state.withPower(newPower.toByte()) as RedstoneWireState, position, eventBuffer)
-                    } else if (state.getPower().toInt() != target) {
-                        settled = false
-                    }
-                }
-                if (settled) {
-                    iterator.remove()
-                }
+                activeIterator.remove()
             }
         }
     }
 
-    private fun bfsFromSeeds(seeds: Set<BlockVertex>, network: Set<BlockVertex>): List<BlockVertex> {
+    private fun bfsEnqueue(placement: BlockVertex) {
         val visited = mutableSetOf<BlockVertex>()
-        val order = mutableListOf<BlockVertex>()
-        val queue = ArrayDeque<BlockVertex>()
-
-        for (seed in seeds) {
-            if (seed in network && visited.add(seed)) {
-                queue.addLast(seed)
-            }
-        }
-
+        val queue = ArrayDeque<PlacementPulse>()
+        queue.add(PlacementPulse(placement, 0))
         while (queue.isNotEmpty()) {
-            val position = queue.removeFirst()
-            order.add(position)
-
-            for (neighbor in connectedWireNeighbors(position)) {
-                if (neighbor in network && visited.add(neighbor)) {
-                    queue.addLast(neighbor)
+            val popped = queue.removeLast()
+            if (visited.contains(popped.block)) {
+                continue
+            }
+            enqueuedPulses.add(popped)
+            visited.add(popped.block)
+            for (neighbor in affectedWirePositions(popped.block)) {
+                if (world[neighbor] is RedstoneWireState){
+                    queue.addFirst(PlacementPulse(neighbor, popped.offset + 5))
                 }
             }
         }
-
-        for (position in network) {
-            if (position !in visited) {
-                order.add(position)
-            }
-        }
-
-        return order
-    }
-
-    private fun collectNetwork(seed: BlockVertex): Set<BlockVertex> {
-        val network = mutableSetOf<BlockVertex>()
-        val queue = ArrayDeque<BlockVertex>()
-
-        if (world[seed] !is RedstoneWireState) {
-            return network
-        }
-
-        queue.addLast(seed)
-
-        while (queue.isNotEmpty()) {
-            val position = queue.removeFirst()
-            if (!network.add(position)) continue
-
-            for (neighbor in connectedWireNeighbors(position)) {
-                if (neighbor !in network) {
-                    queue.addLast(neighbor)
-                }
-            }
-        }
-
-        return network
-    }
-
-    private fun connectedWireNeighbors(position: BlockVertex): List<BlockVertex> {
-        val state = world[position] as? RedstoneWireState ?: return emptyList()
-        val neighbors = mutableListOf<BlockVertex>()
-
-        for (face in HORIZONTAL_FACES) {
-            if (!isConnected(getSide(state, face))) continue
-
-            val neighbor = face.blockOffset(position)
-            if (world[neighbor] is RedstoneWireState) {
-                neighbors.add(neighbor)
-            }
-        }
-
-        val above = Face.TOP.blockOffset(position)
-        if (world[above] is RedstoneWireState) {
-            neighbors.add(above)
-        }
-
-        val below = Face.BOTTOM.blockOffset(position)
-        if (world[below] is RedstoneWireState) {
-            neighbors.add(below)
-        }
-
-        return neighbors
-    }
-
-    private fun emitWireUpdate(
-        state: RedstoneWireState,
-        position: BlockVertex,
-        eventBuffer: EventBuffer,
-    ) {
-        val correctedState = getConnectionState(state, position)
-        val update = BlockUpdateEvent(correctedState, position)
-        update.updateChunk(world[position.toChunkVertex()])
-        eventBuffer.emit(update)
-    }
-
-    private fun stepToward(current: Int, target: Int, stepsRemaining: Int): Int {
-        val diff = target - current
-        if (diff == 0) return current
-
-        val step = minOf(
-            abs(diff),
-            maxOf(POWER_STEP, (abs(diff) + stepsRemaining - 1) / stepsRemaining.coerceAtLeast(1)),
-        )
-        return (current + sign(diff.toFloat()) * step).toInt().coerceIn(0, 15)
     }
 
     private fun affectedWirePositions(position: BlockVertex): List<BlockVertex> {
@@ -390,10 +271,8 @@ class RedstoneSystem(
     }
 
     private data class PlacementPulse(
-        val order: List<BlockVertex>,
-        val restingPower: Map<BlockVertex, Byte>,
-        var frontier: Int = -1,
-        var rising: Boolean = true,
+        val block: BlockVertex,
+        var offset: Int,
     )
 
     companion object {
