@@ -5,6 +5,7 @@ import dev.sleepyswords.piston.block.BlockRegistry
 import dev.sleepyswords.piston.block.Grass
 import dev.sleepyswords.piston.block.RedstoneSider
 import dev.sleepyswords.piston.block.RedstoneWire
+import dev.sleepyswords.piston.block.RedstoneWireState
 import dev.sleepyswords.piston.event.BroadcastEvent
 import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.event.block.BlockUpdateEvent
@@ -22,12 +23,18 @@ class ChunkManagementSystem(
 
     override fun update(eventBuffer: EventBuffer) {
         val placeEvents = eventBuffer.drain<UseItemOnEvent>()
-        val (updateEvents, chatMessages) = placeEvents.map { event ->
-            val placeBlockLocation = event.position + BlockVertex(0, 1, 0)
+        val (updateEvents, chatMessages) = placeEvents.filter {
+            world[it.position].definition !is RedstoneWire
+        }.map { event ->
+            val placeBlockLocation = event.face.blockOffset(event.position)
             val blockUpdate = BlockUpdateEvent(
-                BlockRegistry.defaultBlockIDs[BlockRegistry.defaultBlockIDLate[world[placeBlockLocation]]!! + 1],
-                placeBlockLocation,
-            )
+                RedstoneWire.DEFAULT_STATE
+                    .withEast(RedstoneSider.NONE)
+                    .withWest(RedstoneSider.NONE)
+                    .withSouth(RedstoneSider.NONE)
+                    .withNorth(RedstoneSider.NONE)
+                    .withPower(0),
+                placeBlockLocation)
 
             val chatMessage = BroadcastEvent("Block ID: ${world[placeBlockLocation].id + 1}")
 
@@ -46,7 +53,7 @@ class ChunkManagementSystem(
                     .withSouth(RedstoneSider.SIDE)
                     .withNorth(RedstoneSider.NONE)
                     .withWest(RedstoneSider.UP)
-                    .withPower(5),
+                    .withPower(15),
             it.position)
         }
         updates.forEach{ it.updateChunk(world[it.position.toChunkVertex()])}

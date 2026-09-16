@@ -1,14 +1,20 @@
 package dev.sleepyswords.piston
 
 import dev.sleepyswords.piston.event.EventBuffer
+import dev.sleepyswords.piston.network.handler.handshake.logger
 import dev.sleepyswords.piston.system.ChunkManagementSystem
 import dev.sleepyswords.piston.system.MOTDSystem
+import dev.sleepyswords.piston.system.RedstoneSystem
 import dev.sleepyswords.piston.system.System
 import dev.sleepyswords.piston.world.NoiseGenerator3D
 import dev.sleepyswords.piston.world.World
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 fun main() =
     runBlocking {
@@ -23,6 +29,7 @@ fun main() =
         systems.add(TCPSystem())
         systems.add(MOTDSystem())
         systems.add(ChunkManagementSystem(world))
+        systems.add(RedstoneSystem(world))
 
         val eventBuffer = EventBuffer()
 
@@ -30,6 +37,9 @@ fun main() =
             system.start()
         }
 
+        val clock = TimeSource.Monotonic
+        var ticks = 0
+        var currentTime = clock.markNow()
         while (true) {
             for (system in systems) {
                 system.update(eventBuffer)
@@ -41,6 +51,14 @@ fun main() =
                 system.postUpdate(postEvents)
             }
 
-            delay(100.milliseconds)
+            delay(10.milliseconds)
+
+            ticks += 1
+            if (currentTime.elapsedNow() >= 1.seconds) {
+                println(
+                    (ticks * 1.0f / currentTime.elapsedNow().inWholeNanoseconds) * (1.seconds / 1.nanoseconds))
+                currentTime = clock.markNow()
+                ticks = 0
+            }
         }
     }

@@ -18,6 +18,9 @@ import dev.sleepyswords.piston.network.packet.serverbound.handshake.HandshakePac
 import dev.sleepyswords.piston.network.packet.serverbound.login.ConfirmTeleportationPacket
 import dev.sleepyswords.piston.network.packet.serverbound.login.LoginStartPacket
 import dev.sleepyswords.piston.network.packet.serverbound.login.LoginSuccessServerboundPacket
+import dev.sleepyswords.piston.network.packet.serverbound.play.ClientTickEnd
+import dev.sleepyswords.piston.network.packet.serverbound.play.MovePlayerPos
+import dev.sleepyswords.piston.network.packet.serverbound.play.MovePlayerPosRot
 import dev.sleepyswords.piston.network.packet.serverbound.play.PlayerActionPacket
 import dev.sleepyswords.piston.network.packet.serverbound.play.UseItemOnPacket
 import dev.sleepyswords.piston.network.packet.serverbound.status.PingPacket
@@ -116,6 +119,7 @@ fun handlePrintPacket(
     logger.debug { "Unhandled packet: $packet" }
 }
 
+// FIKXME: seperate the protocol 721 from this
 object ServerboundPacketRegistryCommon : ServerboundPacketRegistry() {
     init {
         register(GameState.HANDSHAKE, 0x00, HandshakePacket.Decoder, ::handleHandshakePacket)
@@ -132,6 +136,11 @@ object ServerboundPacketRegistryCommon : ServerboundPacketRegistry() {
 
         register(GameState.PLAY, 0x00, ConfirmTeleportationPacket.Decoder, ::handlePrintPacket)
         register(GameState.PLAY, 0x02, BundleItemSelectedPacket.Decoder, ::handlePrintPacket)
+
+        register(GameState.PLAY, 0x0C, ClientTickEnd.Decoder) { _, _ ->  }
+
+        register(GameState.PLAY, 0x1D, MovePlayerPos.Decoder) { _, _ ->  }
+        register(GameState.PLAY, 0x1E, MovePlayerPosRot.Decoder) { _, _ ->  }
 
         register(GameState.PLAY, 0x3F, UseItemOnPacket.Decoder, ::handleUseItemOnPacket)
 

@@ -1,4 +1,4 @@
-package dev.sleepyswords.piston.network.dev.sleepyswords.piston.network.packet.common.play
+package dev.sleepyswords.piston.network.packet.common.play
 
 import dev.sleepyswords.piston.network.ClientboundPacket
 import kotlinx.io.Sink
