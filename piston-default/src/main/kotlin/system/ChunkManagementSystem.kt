@@ -1,18 +1,13 @@
 package dev.sleepyswords.piston.system
 
-import dev.sleepyswords.piston.block.Air
-import dev.sleepyswords.piston.block.BlockRegistry
-import dev.sleepyswords.piston.block.Grass
+import dev.sleepyswords.piston.PistonDefault
 import dev.sleepyswords.piston.block.RedstoneSider
 import dev.sleepyswords.piston.block.RedstoneWire
-import dev.sleepyswords.piston.block.RedstoneWireState
-import dev.sleepyswords.piston.event.BroadcastEvent
 import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.event.block.BlockUpdateEvent
 import dev.sleepyswords.piston.event.block.StartBreakBlockEvent
 import dev.sleepyswords.piston.event.block.UseItemOnEvent
 import dev.sleepyswords.piston.event.world.RequestChunkEvent
-import dev.sleepyswords.piston.utility.BlockVertex
 import dev.sleepyswords.piston.world.World
 
 
@@ -20,6 +15,12 @@ class ChunkManagementSystem(
     val world: World,
 ) : System {
     override fun start() {}
+
+    override val runAfter: Set<Checkpoint>
+        get() = setOf(UPDATE_BLOCK, PistonDefault.GAME_TICK_START)
+
+    override val runBefore: Set<Checkpoint>
+        get() = setOf(PistonDefault.GAME_TICK_END)
 
     override fun update(eventBuffer: EventBuffer) {
         val placeEvents = eventBuffer.drain<UseItemOnEvent>()
@@ -61,5 +62,9 @@ class ChunkManagementSystem(
         requestChunks.forEach {
             it.completableDeferred.complete(world[it.chunkPosition].deepClone())
         }
+    }
+
+    companion object {
+        val UPDATE_BLOCK = PistonDefault.PISTON_DEFAULT_NAMESPACE.createResource("update_blocks")
     }
 }

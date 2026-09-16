@@ -1,8 +1,10 @@
 package dev.sleepyswords.piston.network
 
+import dev.sleepyswords.piston.PistonDefault
 import dev.sleepyswords.piston.event.Event
 import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.event.EventBus
+import dev.sleepyswords.piston.system.Checkpoint
 import dev.sleepyswords.piston.system.System
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +17,9 @@ class TCPSystem: System {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var job: Job? = null
 
+
+    override val runBefore: Set<Checkpoint>
+        get() = setOf(PistonDefault.GAME_TICK_START)
 
     override fun start() {
         job = scope.launch(Dispatchers.IO) {

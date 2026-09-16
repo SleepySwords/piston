@@ -1,6 +1,6 @@
 package dev.sleepyswords.piston.system
 
-import dev.sleepyswords.piston.Utility
+import dev.sleepyswords.piston.PistonDefault
 import dev.sleepyswords.piston.block.BlockState
 import dev.sleepyswords.piston.block.Face
 import dev.sleepyswords.piston.block.RedstoneSider
@@ -10,7 +10,6 @@ import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.event.block.BlockUpdateEvent
 import dev.sleepyswords.piston.utility.BlockVertex
 import dev.sleepyswords.piston.world.World
-import jdk.jshell.execution.Util
 
 class RedstonePlacementSystem(
     val world: World,
@@ -19,6 +18,9 @@ class RedstonePlacementSystem(
     private val enqueuedPulses = mutableListOf<PlacementPulse>()
 
     override fun start() {}
+
+    override val runBefore: Set<Checkpoint>
+        get() = setOf(PistonDefault.GAME_TICK_END, ChunkManagementSystem.UPDATE_BLOCK)
 
     override fun update(eventBuffer: EventBuffer) {
         val blockUpdates = eventBuffer.drain<BlockUpdateEvent>()
