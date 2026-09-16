@@ -14,6 +14,8 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(kotlin("stdlib-jdk8"))
 
+    implementation("ch.qos.logback:logback-classic:1.5.32")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
 }
 repositories {
     mavenCentral()

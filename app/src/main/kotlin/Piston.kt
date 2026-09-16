@@ -1,24 +1,26 @@
 package dev.sleepyswords.piston
 
 import dev.sleepyswords.piston.event.EventBuffer
-import dev.sleepyswords.piston.network.handler.handshake.logger
+import dev.sleepyswords.piston.network.TCPSystem
 import dev.sleepyswords.piston.system.ChunkManagementSystem
 import dev.sleepyswords.piston.system.MOTDSystem
-import dev.sleepyswords.piston.system.RedstoneSystem
+import dev.sleepyswords.piston.system.RedstonePlacementSystem
 import dev.sleepyswords.piston.system.System
 import dev.sleepyswords.piston.world.NoiseGenerator3D
 import dev.sleepyswords.piston.world.World
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
+private val logger = KotlinLogging.logger {}
+
 fun main() =
     runBlocking {
-        println("Starting Piston server")
+        logger.info { "Starting Piston server" }
 
         val systems = mutableListOf<System>()
 
@@ -29,7 +31,7 @@ fun main() =
         systems.add(TCPSystem())
         systems.add(MOTDSystem())
         systems.add(ChunkManagementSystem(world))
-        systems.add(RedstoneSystem(world))
+        systems.add(RedstonePlacementSystem(world))
 
         val eventBuffer = EventBuffer()
 
@@ -51,12 +53,13 @@ fun main() =
                 system.postUpdate(postEvents)
             }
 
-//            delay(10.milliseconds)
+            delay(10.milliseconds)
 
             ticks += 1
             if (currentTime.elapsedNow() >= 1.seconds) {
-                println(
-                    (ticks * 1.0f / currentTime.elapsedNow().inWholeNanoseconds) * (1.seconds / 1.nanoseconds))
+                logger.info {
+                    "TPS: ${(ticks * 1.0f / currentTime.elapsedNow().inWholeNanoseconds) * (1.seconds / 1.nanoseconds)}"
+                }
                 currentTime = clock.markNow()
                 ticks = 0
             }

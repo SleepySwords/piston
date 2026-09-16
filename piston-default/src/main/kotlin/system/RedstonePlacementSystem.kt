@@ -1,5 +1,6 @@
 package dev.sleepyswords.piston.system
 
+import dev.sleepyswords.piston.Utility
 import dev.sleepyswords.piston.block.BlockState
 import dev.sleepyswords.piston.block.Face
 import dev.sleepyswords.piston.block.RedstoneSider
@@ -9,6 +10,7 @@ import dev.sleepyswords.piston.event.EventBuffer
 import dev.sleepyswords.piston.event.block.BlockUpdateEvent
 import dev.sleepyswords.piston.utility.BlockVertex
 import dev.sleepyswords.piston.world.World
+import jdk.jshell.execution.Util
 
 class RedstonePlacementSystem(
     val world: World,
@@ -66,7 +68,7 @@ class RedstonePlacementSystem(
         while (enqueuedIterator.hasNext()) {
             val pulse = enqueuedIterator.next()
             if (pulse.offset == 0) {
-                activePulses.add(PlacementPulse(pulse.block, 15))
+                activePulses.add(PlacementPulse(pulse.block, 30))
                 enqueuedIterator.remove()
             }
             pulse.offset -= 1
@@ -80,7 +82,7 @@ class RedstonePlacementSystem(
                 eventBuffer.emit(
                     event = BlockUpdateEvent(
                         newState = block.withPower(
-                            value = pulse.offset.toByte()
+                            value = (pulse.offset.div(2)).toByte()
                         ),
                         position = pulse.block
                     )

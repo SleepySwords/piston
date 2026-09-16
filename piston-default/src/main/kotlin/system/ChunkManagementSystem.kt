@@ -23,11 +23,11 @@ class ChunkManagementSystem(
 
     override fun update(eventBuffer: EventBuffer) {
         val placeEvents = eventBuffer.drain<UseItemOnEvent>()
-        val (updateEvents, chatMessages) = placeEvents.filter {
+        val updateEvents = placeEvents.filter {
             world[it.position].definition !is RedstoneWire
         }.map { event ->
             val placeBlockLocation = event.face.blockOffset(event.position)
-            val blockUpdate = BlockUpdateEvent(
+            BlockUpdateEvent(
                 RedstoneWire.DEFAULT_STATE
                     .withEast(RedstoneSider.NONE)
                     .withWest(RedstoneSider.NONE)
@@ -35,15 +35,10 @@ class ChunkManagementSystem(
                     .withNorth(RedstoneSider.NONE)
                     .withPower(0),
                 placeBlockLocation)
-
-            val chatMessage = BroadcastEvent("Block ID: ${world[placeBlockLocation].id + 1}")
-
-            Pair(blockUpdate, chatMessage)
-        }.unzip()
+        }
 
         updateEvents.forEach{ it.updateChunk(world[it.position.toChunkVertex()])}
         updateEvents.forEach(eventBuffer::emit)
-        chatMessages.forEach(eventBuffer::emit)
 
         val breakEvents = eventBuffer.drain<StartBreakBlockEvent>()
         val updates = breakEvents.map {

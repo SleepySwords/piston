@@ -69,7 +69,6 @@ class NetworkManager {
             }
             this.launch {
                 for (event in eventBus.clientBoundEvents) {
-                    println(event)
                     if (event is ChatMessageEvent) {
                         sessionMutex.withLock {
                             val session = sessions.find { it.uuid == event.player }
